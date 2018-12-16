@@ -1,0 +1,371 @@
+cd hcv_protease_design/protease_design/  && ./design_protease.py -s a_to_s_ly104_WT.pdb -od p5_mutants -cseq pep_seq_lists/p5c_cleaved_7.txt -useq pep_seq_lists/p5c_uncleaved_4.txt -cons ly104.cst -d 20 
+cd hcv_protease_design/protease_design/  && ./design_protease.py -s A-S_C-T_ly104_WT.pdb -od p5_mutants -cseq pep_seq_lists/p5t_cleaved_2.txt -useq pep_seq_lists/p5t_uncleaved_18.txt -cons ly104.cst -d 20
+
+cd protease_design/  && ./design_protease.py -s a_to_s_ly104_WT.pdb -od manasi_sequences -cseq pep_seq_lists/manasi_cleaved.txt -useq pep_seq_lists/manasi_uncleaved.txt -cons ly104.cst -d 20
+
+cd protease_design/; for i in DCEVVT DPEVVT DEEVVT ELEVVT FLEVVT HLEVVT LLEVVT MLEVVT PLEVVT QLEVVT RLEVVT TLEVVT VLEVVT WLEVVT; do ./design_protease.py -s A-S_C-T_ly104_WT.pdb -od compare_identified_mutations/$i -cons ly104.cst -useq $i -d 100 -trmf target_res_mutation_files/$i.trm; done
+cd protease_design/; for i in EATTPC FCTTPC HCTTPC LCTTPC PCTTPC RCTTPC TCTTPC; do ./design_protease.py -s a_to_s_ly104_WT.pdb -od compare_identified_mutations/$i -cons ly104.cst -useq $i -d 100 -trmf target_res_mutation_files/$i.trm; done
+
+cd protease_design/; for i in ENDAR DVDAR TEDDY DVDDY DVDAS EQDAY CEDYF; do ./design_protease.py -s a_to_s_ly104_WT.pdb -od manasi_high_priority -cons ly104.cst -useq $i -d 100; done
+
+for seq in list_cleaved:
+    printed = False
+    for i, j in enumerate(seq):
+        for k in res_types:
+            new_seq = seq[:i]+k+seq[i+1:]
+            if new_seq in list_uncleaved:
+                if not printed:
+                    print '\n', seq
+                    printed = True
+                print 'uncleaved', i+1, new_seq
+
+for seq in list_cleaved:
+	printed=False
+	for usq in list_uncleaved:
+		match = 0
+		for i in range(len(usq)):
+			if usq[i]==seq[i]:
+			match+=1
+		if match >=4 and usq[2]!=seq[2]:
+			if not printed:
+				print '\n', seq
+				printed = True
+			print '\t', usq
+
+ for i in files:
+    with open(i, 'r') as r:
+        with open(join(outp, i), 'w') as w:
+        	chain = None
+            for line in r.readlines():
+                if line[:4] == 'ATOM':
+                    if not chain:
+                        chain = line.split()[4]
+                        print chain
+                    if line.split()[4] == chain:
+	                    w.write(line)
+
+
+
+from pyrosetta import *
+init('-extra_res_fa CPEF.params -enzdes::cstfile const.cst -cst_fa_weight 1.0 -run:preserve_header')
+from pyrosetta.rosetta.protocols.constraint_generator import CoordinateConstraintGenerator
+cg=CoordinateConstraintGenerator()
+from pyrosetta.rosetta.protocols.constraint_generator import AddConstraints
+ac=AddConstraints()
+ac.add_generator(cg)
+from pyrosetta.rosetta.protocols.relax import FastRelax
+fr=FastRelax()
+sf = create_score_function('ref2015_cst')
+fr.set_scorefxn(sf)
+pose=pose_from_pdb('clean_5fv4.pdb')
+mm=MoveMap()
+mm.set_bb(False)
+mm.set_chi(True)
+for i in [198, 331, 445]:
+    mm.set_chi(i, False)
+fr.set_movemap(mm)
+cg.apply(pose)
+fr.apply(pose)
+
+cdkl
+cd esterase_collaboration
+ipython
+from pyrosetta import *
+from pyrosetta.toolbox import *
+from pyrosetta.rosetta.protocols.relax import FastRelax
+from pyrosetta.rosetta.protocols.enzdes import AddOrRemoveMatchCsts, ADD_NEW
+init('-extra_res_fa cpef.params -enzdes::cstfile 5fv4_cpef.cst -cst_fa_weight 1.0 -run:preserve_header -nblist_autoupdate')
+fr=FastRelax()
+sf = create_score_function('ref2015_cst')
+fr.set_scorefxn(sf)
+cstm = AddOrRemoveMatchCsts()
+cstm.set_cst_action(ADD_NEW)
+mm = MoveMap()
+mm.set_bb(False)
+mm.set_jump(True)
+mm.set_chi(True)
+fr.set_movemap(mm)
+pose=pose_from_pdb('5fv4_cpef_2.pdb')
+cstm.apply(pose)
+mutate_residue(pose,199,'Y')
+fr.apply(pose)
+
+-minimize_ligand_torsions 5 
+jd = PyJobDistributor('relaxed/5fv4_cpef',10,sf)
+while not jd.job_complete:
+    pp = Pose()
+    pp.assign(pose)
+    fr.apply(pp)
+    jd.output_decoy(pp)
+
+fr.apply(pose)
+pose.dump_pdb('superfast_test.pdb')
+
+pe = pose.energies()
+pe_all = str(pe).split('\n')
+for i in pe_all[1:]:
+line = i.split()
+if any([float(j) != 0 for j in line[14:16]]):
+print i
+
+for i in [1,201,202, 446]:
+print pose.residue(i); print pe.residue_total_energies(i).show_nonzero(); print ''
+
+from pyrosetta.rosetta.core.select.residue_selector import NeighborhoodResidueSelector, ChainSelector, NotResidueSelector
+from pyrosetta.rosetta.core.pack.task import TaskFactory
+from pyrosetta.rosetta.core.pack.task.operation import   OperateOnResidueSubset, PreventRepackingRLT, RestrictToRepackingRLT
+neigh = NeighborhoodResidueSelector()
+neigh.set_distance(10)
+neigh.set_focus_selector(ChainSelector('X'))
+neigh.set_include_focus_in_subset(True)
+tf = TaskFactory()
+prevent = PreventRepackingRLT() 
+repack = RestrictToRepackingRLT() 
+tf.push_back(OperateOnResidueSubset(prevent, NotResidueSelector(neigh)))
+tf.push_back(OperateOnResidueSubset(repack, neigh))
+fr.set_task_factory(tf)
+
+from pyrosetta.rosetta.core.scoring import ScoreType
+sf.set_weight(st.fa_intra_rep_nonprotein,1)
+
+
+from pyrosetta import *
+from pyrosetta.rosetta.protocols.grafting.simple_movers import DeleteRegionMover, KeepRegionMover, ReplaceRegionMover
+from pyrosetta.rosetta.core.select.residue_selector import ResidueIndexSelector
+from pyrosetta.rosetta.protocols.grafting import CCDEndsGraftMover
+init()
+pose=pose_from_pdb('a_to_s_ly104_WT.pdb')
+p1=Pose()
+p1.assign(pose)
+drm=DeleteRegionMover()
+ri=ResidueIndexSelector('135-138')
+drm.set_residue_selector(ri)
+drm.apply(p1)
+p2=Pose()
+p2.assign(pose)
+krm=KeepRegionMover()
+krm.start(135)
+krm.end(138)
+krm.apply(p2)
+p3=Pose()
+p3.assign(p1)
+p3.append_polymer_residue_after_seqpos(p2.residue(1),134,False)
+p3.append_polymer_residue_after_seqpos(p2.residue(2),135,False)
+p3.append_polymer_residue_after_seqpos(p2.residue(3),136,False)
+p3.append_polymer_residue_after_seqpos(p2.residue(4),137,False)
+p3.append_polymer_residue_after_seqpos(p2.residue(5),138,False)
+p3.assign(pose)
+ri=ResidueIndexSelector('133-139')
+drm.set_residue_selector(ri)
+drm.apply(p3)
+hrv=pose_from_pdb('serine_proteases/combined_list/2hrv.pdb')
+loop=Pose()
+loop.assign(hrv)
+krm.start(72)
+krm.end(97)
+krm.apply(loop)
+pm.apply(p3)
+pm.apply(lop)
+pm.apply(loop)
+begin=132
+for i in range(1,loop.total_residue()+1):
+    p3.append_polymer_residue_after_seqpos(loop.residue(i),begin,False)
+    begin+=1
+rrm=ReplaceRegionMover(hrv, 72, 1, 26, False)
+aaaa=pose_from_sequence('A'*100)
+rrm.apply(aaaa)
+hrv=pose_from_pdb('serine_proteases/combined_list/2hrv.pdb')
+krm.start(74); krm.end(95)
+krm.apply(hrv)
+pose=pose_from_pdb('a_to_s_ly104_WT.pdb')
+ccdgm=CCDEndsGraftMover(135,138,hrv,2,2)
+ccdgm.apply(pose)
+
+poses={}
+anchors=[[134,139], [135,138], [136,137]]
+loops=[[72,97], [73,96], [74,95], [75,94], [76,93]]
+overlaps=range(7)
+for a in anchors:
+for l in loops:
+for o in overlaps:
+name=str(a) + str(l) + str(o)
+name=name.replace('[','').replace(']','_').replace(',','-')
+name=name.replace(' ', '')
+name='calibrate_CCDEndsGraftMover/'+name+'.pdb'
+if name not in made:
+try:
+hrv=pose_from_pdb('2hrv.pdb')
+krm.start(l[0]); krm.end(l[1])
+krm.apply(hrv)
+pose=pose_from_pdb('a_to_s_ly104_WT.pdb')
+ccdgm=CCDEndsGraftMover(a[0],a[1],hrv,o,o)
+ccdgm.apply(pose)
+pose.dump_pdb('calibrate_CCDEndsGraftMover/'+name+'.pdb')
+
+win6 = [1, 69, 71, 72, 75, 76, 79, 80, 119, 120, 121, 122, 123, 124, 125, 199, 200, 201, 202, 203, 204, 226, 227, 231, 232, 234, 280, 281, 282, 283, 284, 295, 296, 333, 336, 337, 338, 339, 340, 341, 342, 343, 364, 365, 402, 403, 445]
+scores=['Model\tTotal\tLigand\tShell']
+for m in models:
+p=pose_from_pdb(m)
+cstm.apply(p)
+tot = sf(p)
+en = p.energies()
+lig = en.residue_total_energy(1)
+shell = sum([en.residue_total_energy(i+1) for i in win6])
+scores.append('\t'.join([str(i) for i in [m.replace('.pdb', ''), tot, lig, shell]]))
+
+
+sed -i.bak '/LINK/d' *
+
+# HTRA recognition sequences on tau
+seq = 'VQIVYKPVDLSKVTSKCGSLGNIHHKPGGGQVEVKSEKLDFKDRVQSKIGSLDNITHVPGGGNKKIETHKLTF'
+for i in range(len(seq)-5):
+s = seq[i:i+6]
+# No perfect matches
+match = sum([s[2] in 'CIT', s[3] in 'FW', s[4] in 'AFHILMTVWY', s[5] in 'AFILMVWY'])
+if match >= 2:
+print i, s, match
+"""
+0  VQIVYK 2
+14 SKCGSL 2
+20 GNIHHK 2
+46 SKIGSL 2
+52 DNITHV 3
+53 NITHVP 2
+63 KKIETH 2
+65 IETHKL 2
+67 THKLTF 2
+"""
+for i in range(len(seq)-11):
+s = seq[i:i+12]
+match = sum([s[0] in 'AGS', s[1] in 'LV', s[2] in 'ST', s[3] in 'W', s[4] in 'G', s[5] in 'DE', s[6] in 'AFILMVWY', s[7] in 'LV', s[9] in 'AFILMVWY', s[10] in 'ILV'])
+if match >= 3:
+print i, s, match
+# None match betterthan 3
+for i in range(len(seq)-11):
+s = seq[i:i+12]
+match = sum([s[0] in 'AGSED', s[1] in 'LVGS', s[2] in 'STRAPLVMR', s[3] in 'WVATL', s[4] in 'GSFL', s[5] in 'DEAWR', s[6] in 'AFILMVWYEG', s[7] in 'LVW', s[9] in 'AFILMVWYPRE', s[10] in 'ILVRWGM'])
+if match >= 5:
+print i, s, match
+"""
+10 SKVTSKCGSLGN 6
+16 CGSLGNIHHKPG 5
+17 GSLGNIHHKPGG 5
+27 GGGQVEVKSEKL 5
+31 VEVKSEKLDFKD 5
+34 KSEKLDFKDRVQ 6
+42 DRVQSKIGSLDN 5
+48 IGSLDNITHVPG 5
+49 GSLDNITHVPGG 5
+"""
+
+Old dihedrals from tug_tau
+# Creating dihedral constraints to force tug out from fibril, not in
+# Appropriate dihedrals depend on residue orientation (odd or even number)
+#if tug_site % 2 == 0:
+#   angle_above = radians(90 - acos(4.8/tug_len))
+#   angle_below = radians(90 + acos(4.8/tug_len))
+#else:
+#   angle_above =  radians(-90 - acos(4.8/tug_len))
+#   angle_below =  radians(-90 + acos(4.8/tug_len))
+
+from pyrosetta import *
+from pyrosetta.rosetta.protocols.relax import FastRelax
+init('-relax:constrain_relax_to_start_coords')
+sf = create_score_function('ref2015_cst')
+fr = FastRelax()
+fr.set_scorefxn(sf)
+pose = pose_from_pdb('pdz_2joa.cif.gz')
+jd = PyJobDistributor('pdz_relax/pdz',20,sf)
+while not jd.job_complete:
+pp = Pose()
+pp.assign(pose)
+fr.apply(pp)
+jd.output_decoy(pp)
+
+for i in range(1,6):
+pose.set_phi(i, temp.phi(i+211))
+pose.set_psi(i, temp.psi(i+211))
+pose.set_omega(i,temp.omega(i+211))
+pose.set_chi(1,i,temp.chi(1,i+211))
+
+for i in range(50):
+pp=Pose()
+pp.assign(pose)
+pp.set_phi(217, randrange(-180,180))
+pp.set_psi(217, randrange(-180,180))
+fr.apply(pp)
+if sf(pp)<= best_score:
+best_score=sf(pp)
+best_pose.assign(pp)
+
+
+from pyrosetta.rosetta.core.select.residue_selector import \
+    AndResidueSelector, ChainSelector, InterGroupInterfaceByVectorSelector,\
+    NotResidueSelector, OrResidueSelector, ResidueIndexSelector
+from pyrosetta.rosetta.core.simple_metrics.metrics import SecondaryStructureMetric
+from pyrosetta.rosetta.protocols.analysis.simple_metrics import RunSimpleMetricsMover
+from pyrosetta.rosetta.core.simple_metrics.per_residue_metrics import PerResidueEnergyMetric
+from pyrosetta.rosetta.core.simple_metrics.metrics import SelectedResiduesPyMOLMetric
+from pyrosetta.rosetta.core.simple_metrics.metrics import TimingProfileMetric
+from pyrosetta.rosetta.core.simple_metrics.metrics import SelectedResiduesMetric
+from pyrosetta.rosetta.protocols.simple_ddg import ddG
+chs = ChainSelector('B')
+ssm=SecondaryStructureMetric(chs)
+prem=PerResidueEnergyMetric()
+prem.set_residue_selector(chs)
+hcv=pose_from_pdb('../protease_design/a_to_s_ly104_WT.pdb')
+prem.calculate(hcv)
+prem.set_comparison_pose(hcv)
+pose=pose_from_pdb('../protease_design/mhp_refine/uncleaved_ly104_wt_ACEDYFCSMHL_designed_0.pdb')
+prem.calculate(pose)
+sf=create_score_function('ref2015_cst')
+d = ddG(sf,1)
+d.calculate(hcv)
+d.sum_ddG()
+
+
+from design_protease import *
+init('-enzdes::cstfile ly104.cst -cst_fa_weight 1.0 -run:preserve_header')
+wpws = pose_from_pdb('../images/protease_grant/wpws.pdb')
+npns = pose_from_pdb('../images/protease_grant/npns.pdb')
+fr=FastRelax()
+sf=create_score_function('ref2015_cst')
+fr.set_scorefxn(sf)
+mm=MoveMap()
+mm.set_bb(False)
+for i in range(198,203):
+    mm.set_chi(i, True)
+
+fr.set_movemap(mm)
+tf=TaskFactory()
+yes_res=ResidueIndexSelector('198-202')
+no_res = NotResidueSelector(yes_res)
+prevent = PreventRepackingRLT() 
+repack = RestrictToRepackingRLT()
+tf.push_back(OperateOnResidueSubset(prevent, no_res))
+tf.push_back(OperateOnResidueSubset(repack, yes_res))
+fr.set_task_factory(tf)
+wpns=Pose()
+wpns.assign(wpws)
+apply_constraints(wpws)
+tm = SimpleThreadingMover('CEDYF',198)
+tm.apply(wpns)
+fr.apply(wpns)
+wpns.dump_pdb('../images/protease_grant/wpns.pdb')
+npws=Pose()
+npws.assign(npns)
+apply_constraints(npws)
+tm = SimpleThreadingMover('DVDIR',198)
+tm.apply(npws)
+fr.apply(npws)
+npws.dump_pdb('../images/protease_grant/npws.pdb')
+for i in [wpws, wpns, npws, npns]:
+    print sf(i)
+
+
+from glob import glob
+check_pdbs = glob('manasi_sequences/cleaved_ly104_wt_*_relaxed_*.pdb')
+check_pdbs
+check_scores = [pose_from_pdb(i) for i in check_pdbs]
+for n,i in enumerate(check_scores):
+    print check_pdbs[n], sf(i)

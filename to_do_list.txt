@@ -1,0 +1,252 @@
+To Do
+	Update design protocol
+		Add -ex1 -ex2 -keep_native flags
+		Extend to non-HCV
+		"What sorts of sequences had this mutation?"
+		Add sequence change classification, compared to cannonical sequences?
+		Borrow from Will's script to ditch CST files
+		What to do about double-designed peptide results?
+		Output which PDB to check for example of mutation
+		Add further constraints to keep peptide in b-sheet
+			Manasi emphasized stronger importnce of constraint scores
+		Add cleaved/uncleaved indicator to sequences in by-mutation output
+		Insert blank lines between sets in by-set mutations and condense_fasc
+		Make design happen separately from relax, rather than after
+		Double-step procedure to include forward-fold
+			Do design on protease with altered substrate, take list of designs and make them static, allowing design on peptide instead and see if target substrate is recaptured.
+
+
+New protocol
+	Loop hashing, starting with fixed ends
+	Need database of protease loops
+		serine-like proteases
+		check database for loops of length X that match end orientations
+	Variable length build option?
+	Mike Tyka, splice mover (Fleishman @ Weitzman Institute)
+	Will's RMSA?
+	Protocol
+		centroid
+			Randomly pick loop size
+			Find suitable loops in database, splice in
+		full-atom
+			redesign interface with new loop around peptide
+			rescore
+			accept/reject
+		Swap loops until things aren't improving much. Filter?
+		If this overly favors long loops, alternative "hot spot" approach:
+			Define hot spots and constrain a hot interaction
+			Inverse rotamer sampling
+			Backbone moved to accommodate the rotamer
+			(Need to figure out which mover does this)
+	Benchmark
+		Recovery of native loops across set
+	Thoughts
+		Assessment of loop  (and full structure) flexibility, since part of loop role is in determining rigidity of the catalytic site, part in attracting the substrate, and part in positioning it
+		XX(for now)Can we share loops across different types of protease, or even with wider PDB?
+		Maybe jump peptide away, then insert loop, check about structure change, then put peptide back in --> filter
+		Try peptide binding without constraints vs with constraints? Up CST weights?
+		Water-mediation?
+		Do we want a database of serine protease mutations?
+		Assemble a list of experimental methods, compare to Manasi's?
+		Funny thing about orientation, see fig 3
+		Competitive in vitro test -- multiple discriminble peptides with designed protease, assess cleavage propensity--quantitative comparison
+
+
+HTRA1
+	N>C: insulin-like growth factor binding domain, kazal 2 domain, trypsin-like domain, PDZ domain
+		Kazal related to protease inhibition
+			N-terminal binds active site, blocks
+	Does phosphorylation/other PTM influence activity?
+	Conformation specificity > prefers fibrils over soluble
+		More enzyme accelerates fibril degradation, not soluble
+		Enzyme attack is not specific to fibril ends
+		More cuts to core regions of tau when pre-treated with enzymatically inactive (active PDZ) form than wihout pretreatment
+			Opens up and cuts, vs starts from tau termini then hits destabilized core
+	This is complicated. Rosetta to start, QM/MM refine? HTRA1 mechanism?
+	Ehrmann 2012 paper has sequences for tau cleavage. Poepsel 2015 paper includes distinction between soluble and insoluble, some time resolution.
+	Trimerizes strongly in solution
+		PDB structures are monomeric
+	N-domain is not inhibitory
+	Crystal structure includes two flawed chains, and one that is considered competent--Eigenbrot 2012. Chain B most reliable. Comparable to 3nzi from Trubenstein 2011. 3tjn from Eigenbrot 2012.
+	Eigenbrot 2012 includes speculative structure for full protein from SAXS
+		SI includes some cleaved sequences
+	480 residues
+	Loop L3 affected by PDZ binding--res 303-315
+		For DegS, L3 b-sheets with peptide b-sheeted to PDZ
+	Loop LD influenced by trimer--res 283-291
+	Cat res H220, D250, S328
+	Oxyanion hole res 325-327 on loop L1
+PDZ
+	Seems to have 4-residue recognition requirement, longer hybridization
+	Likes carboxyl groups at 0, but for C-terminal, likes hydrophobic side chin
+	Likes W at -1
+	Runyon 2007 did see some substrate specificity differences in Ala scans
+	A few mutations can radically alter ubstrate specificity
+		Maybe check library of PDZ's and their substrate specificities?
+	Trp at -1 may bind protease and activate
+	No impact on free peptide cleavage--only fibrils
+Tau
+	Phosphorylation?
+	2N4R
+		MAEPRQEFEVMEDHAGTYGLGDRKDQGGYTMHQDQEGDTDAGLKESPLQTPTEDGSEEPGSETSDAKSTPTAEDVTAPLVDEGAPGKQAAAQPHTEIPEGTTAEEAGIGDTPSLEDEAAGHVTQARMVSKSKDGTGSDDKKAKGADGKTKIATPRGAAPPGQKGQANATRIPAKTPPAPKTPPSSGEPPKSGDRSGYSSPGSPGTPGSRSRTPSLPTPPTREPKKVAVVRTPPKSPSSAKSRLQTAPVPMPDLKNVKSKIGSTENLKHQPGGGKVQIINKKLDLSNVQSKCGSKDNIKHVPGGGSVQIVYKPVDLSKVTSKCGSLGNIHHKPGGGQVEVKSEKLDFKDRVQSKIGSLDNITHVPGGGNKKIETHKLTFRENAKAKTDHGAEIVYKSPVVSGDTSPRHLSNVSSTGSIDMVDSPQLATLADEVSASLAKQGL
+	Fibril core: 306-378
+MS data
+	Oddly, most sites that have soluble cleaved but not fibril are outside core
+	WT does seem to prefer hydrophobic P1
+	Are fibril and soluble that different?
+	Jim Wells, Subtiligase N-terminal proteomics
+	Scatter correlate fibril vs soluble, 10 min, cleaved at all
+		How soluble and fibril correlate changing in time?
+		May need NMR here
+	Vertical plot with fibril on one side, soluble on other
+
+	DID PROTEASE CUT WITHOUT PDZ
+		Tennstaedt 2012--Yes (small fragment substrate), though not as well as WT, until tau present, then cut better
+ 	LIT: DOES DEGRADING AMYLOIDS SHOW PROMISE AS TREATMENT AT ALL, what enzymes and fibrils? What questions can be answered, e.g mechanisms, dissolving s degrading? Will this work? Implications and significance of this tool. MOTIVATE!
+	Patrick Dogherty, Kallikreins to dissolve a-beta fibrils (spelling may be wrong)
+	Bone up on DegP and DegS, other Htra's
+	What's with oligomerization?
+	Verify no N-terminal
+	Why Poepsel plots show no bars or differences between F/S?
+
+RosettaCon
+	Write follow-up email for Grace Hopper/SACNAS
+
+	SimpleMetrics (Jared)
+	Boot Camp
+		Steven/Brian's talk-> Pull Requetiquette
+		Using PR page--identifying the relevant info
+		Testing server, and explanation of tests
+	Python
+		PANDAS--date analysis
+		DASK--distribute tasks without JD2
+		Bio--AA names, etc.
+	See tutorials from Brian W's second PreCon talk
+		conda.ipd.uw.edu
+	Rosalie Lipsh talk
+		Enzyme re-backboning
+			Lapidoth 2018 Nature Communications
+		Pocket redesign
+			Restrict mutations by native to homologs, ddG
+			Kheronsky [soon] Mol. Cell
+		FuncLib
+	Improvements to FastDesign--may want to implement
+	UW Thursday afternon talk--also reduced mutation space by ddG
+	Brian W's poster--H-bond network to fix enzyme
+	Vatsan Raman is Rosetta PI at UW-Madison
+	AbDesign-Gideon Lapidoth--antibody may apply to loop swapping
+	PLOGO 2013 Nature Methods--plogo.yukon.edu
+		Sequence plots (residue frequency)
+		Better representation of real specificity
+
+Paper review:
+	Jackhmmer to identify orthologs, CD-HIT to reduce redundancy
+	InterfaceAnalyzer
+	Bootstrapping -- Lasso logistic regression
+	L1-regularized Logistic regression models, ROC and precision recall curves
+	Used Kunkel mutagenesis
+
+Ideas
+	Htra1
+		Time study of what fragments are produced, where cuts happen first
+		Take peptide that binds PDZ, verify that it is not cleaved. Then test cleavage activity in the presence of this peptide. (Wilken, 2004)
+			Is there a way to check for many frames in tau cheaply?
+		Put in repulsive constraints on a middle fiber to push out of alignment, then rescore. Repeat with different residues to determine where it's least unfavorable to pull apart the fibril.
+		ssNMR of PDZ binding internal sequence
+		Test effect of assembly on tau degradation (Jo 2014)
+	
+	Would be nice if movemap worked with residue selectors
+	Would be nice if designing with FlexPepDock didn't require flags and a resfile, had setter for score function
+	XX Test full cut/uncut list w/base HCV protease, search for correlation patterns with extracted data. Sort of like Manasi's paper.
+		Total score
+		ddG
+		Interface residue scores
+		Interface residue pair-scores
+		Scaling by residue mutation propensity?
+	XX Getting a sense of cleavage efficiency for known cleaved, vs. different Rosetta scores
+
+Literature to seek
+	--Perona & Craik Proteins/Protein Science 1995, 1997
+		loops in serine protease fold
+	* HTRA protease--has PDZ and protease
+		How to model two-domain + substrate in near-attack
+	* Compare a-synuclein and tau papers 
+	Neurosin or cathepsin expression
+	Note, collagenase structures referenced in Perona&Craik
+
+Collect data on
+	Assays for specificity determination
+	Engineered proteases for altered specificity
+		Mutations and efficacy
+	Trypsin-like proteases
+		Count interactions of a loop with peptide vs with the rest of the protease
+		Assess how happy new loop would be in a splice
+		Filter out ones that would really lose their original conformation
+
+	From viewed AEPDIR_1
+		Back-convert res 56 to Q
+		V93 to glutamate when AEPDI<b>R</b>
+			Run a few models to see how that goes
+		Glutamate --> lysine was good
+		D183K was good w/ asp 4 of peptide
+		Lysine on prime side doesn't matter
+
+	Review 2-side (prot + pep) deisgns
+		How does FastDesign compare with earlier protocol
+			Space of mutations, energies, etc.
+
+	Fix up MFPred
+
+	##########################################################################
+	Complete
+
+	Scripting
+		--Design both protease and peptide
+		--Different sampling protocols
+			--Original manual loop
+			--FastDesign
+			XX FlexPepDock
+				XX clashes with enzdes constraints
+				may mitigate using Will's constraints trick
+				for reference: init('-enzdes::cstfile ly104.cst -packing:resfile resfiles/updated_ly104_protease.resfile -run:preserve_header -cst_fa_weight 1.0 -flexPepDocking:receptor_chain A -flexPepDocking:peptide_chain B -flexPepDocking:design_peptide true -lowres_abinitio true')
+			XX Backrub
+				Doesn't design
+			XX Others?
+				Nothing seemed better suited than FastDesign
+		--Adjust residue selection
+			--Ignore prime region of peptide
+			--Differential selection based on side chain length?
+				--Selectors applied after threading, rather than before
+		--What's up with residue scores?
+		--Increase decoy count
+		--Improve output
+			XX Combine current scripts
+				Keep decoy generation and analysis separate, otherwise large sets become a problem
+			--Change mutations output to make columns match, separate start/end/energy change 
+			--Collect residue mutation propensity
+			--Add mutation type, group output that way for by-mutation
+			--Add energies to by-mutation output
+			--Use selectors to see what residues a mutant might interact with
+			--Use min instead of average in first mutants analysis
+			--Common vs rare vs situational
+			--Look at residue type, not just letter
+			--Aggregate mutation info across all models vs mutations specific to peptides
+			--Connection between mutation and specific residue in peptide sequence?
+			--Mutation type
+
+	--Find cannonical (HCV) sequences 
+		Didn't find in Manasi'd paper (4?)
+		**** Lin, Chao 2006, fig 2C ****
+		Focus on 1b, exclude NS3/NS4A site
+		Efficiency: NS5A/NS5B > NA4A/NA4B >> 	NS4B/NS5A
+					EDVVCC		DEMEEC			DCSTPC
+		Others		DS I 						EYPI
+					Q							  TV
+												   S
+		Charge before CS?
+		Compare residue types in designed sequences against these
+
+	
+	For curating loops set, use code from Dali for alignment
+	Check at each step--look at PDB files to make sure what's being selected makes sense.
+	Test Manasi's sequences in pipeline, check for recognition.

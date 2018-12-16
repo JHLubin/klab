@@ -1,0 +1,13 @@
+TMUX tips
+
+ctrl+b --> many commands
+shift+% --> opens new tab side-by-side
+shift+" --> opens new tab top/bottom
+ctrl+b o --> switch between tabs
+ctrl+b x --> close tab
+ctrl+b c --> new window
+
+tmux kill-session --> exit
+
+tmux ls --> list open tmux windows
+tmux att -t 0 --> open window 0

@@ -1,0 +1,27 @@
+protein-protein interaction detection for imaging applications
+phenols to esterase
+This one can be extracellular
+
+Porcine liver esterase is what you're using, but what was sent is a different one that is 95% homologous
+Actual target: 5FV4
+
+Some NNK mutagenesis near active site
+screened for positive hits
+Picking AA positions, primers to single-site mutate
+
+Val474 ->R (1475 pymol), Gly468->R (1469 in pymol), Glutamate221->Y (1220 in pymol)
+improved activity
+468 truncation improved activity with frame shift
+G468 was left, then the following sequence: MRSSLGSDFHC-stop
+
+Eventually want split enzyme, selective for large ester groups
+Have attempted 72 splits, some have worked
+
+PACE doesn't work so well with these mamalian proteins
+
+Maybe select against methyl small molecule, while favoring the cpef
+
+
+20180515
+L358, M362, and M363. Doing random mutagenesis at those positions essentially led to either no improvement over wt activity, or a decrease in activity.
+Saturation mutagenesis. Not sequenced to determine specific mutations, but could be sequenced.
