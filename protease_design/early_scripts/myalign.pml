@@ -1,0 +1,60 @@
+#
+# example PyMOL script, run with pymol -cq align.pml
+# needs cealign plugin in pymol and numpy installed
+# add the following two lines to .pymolrc 
+# run /path/to/cealign/directory/qkabsch.py  
+# run /path/to/cealign/directory/cealign.py  
+# sometimes alignto does not work.
+# add alignto function to cealign.py in that case.
+
+from pymol import cmd
+
+cmd.load("2ada.pdb")
+cmd.load("1a4m.pdb")
+cmd.load("1a4l.pdb")
+cmd.load("1add.pdb")
+cmd.load("1fkw.pdb")
+cmd.load("1fkx.pdb")
+cmd.load("1uio.pdb")
+cmd.load("1uip.pdb")
+cmd.load("1krm.pdb")
+cmd.load("1ndz.pdb")
+cmd.load("1w1i.pdb")
+cmd.load("1ndv.pdb")
+cmd.load("1ndw.pdb")
+cmd.load("1ndy.pdb")
+cmd.load("1o5r.pdb")
+cmd.load("1qxl.pdb")
+cmd.load("1uml.pdb")
+cmd.load("2bgn.pdb")
+cmd.load("2e1w.pdb")
+cmd.load("1v79.pdb")
+cmd.load("1v7a.pdb")
+cmd.load("1vfl.pdb")
+cmd.load("1wxy.pdb")
+cmd.load("1wxz.pdb")
+alignto("1a4l")
+cmd.save("2ada.pdb", "2ada")
+cmd.save("1a4m.pdb", "1a4m")
+cmd.save("1a4l.pdb", "1a4l")
+cmd.save("1add.pdb", "1add")
+cmd.save("1fkw.pdb", "1fkw")
+cmd.save("1fkx.pdb", "1fkx")
+cmd.save("1uio.pdb", "1uio")
+cmd.save("1uip.pdb", "1uip")
+cmd.save("1krm.pdb", "1krm")
+cmd.save("1ndz.pdb", "1ndz")
+cmd.save("1w1i.pdb", "1w1i")
+cmd.save("1ndv.pdb", "1ndv")
+cmd.save("1ndw.pdb", "1ndw")
+cmd.save("1ndy.pdb", "1ndy")
+cmd.save("1o5r.pdb", "1o5r")
+cmd.save("1qxl.pdb", "1qxl")
+cmd.save("1uml.pdb", "1uml")
+cmd.save("2bgn.pdb", "2bgn")
+cmd.save("2e1w.pdb", "2e1w")
+cmd.save("1v79.pdb", "1v79")
+cmd.save("1v7a.pdb", "1v7a")
+cmd.save("1vfl.pdb", "1vfl")
+cmd.save("1wxy.pdb", "1wxy")
+cmd.save("1wxz.pdb", "1wxz")

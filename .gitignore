@@ -11,15 +11,15 @@ $ cat .gitignore
 !/esterase_collaboration/*.txt
 
 /fibrils_collaboration/*/
-!/fibrils_collaboration/ehrmann/*.fasta
-!/fibrils_collaboration/ehrmann/*.py
-!/fibrils_collaboration/ehrmann/*.txt
-!/fibrils_collaboration/ehrmann/ms_tau_only/MS_output.xlsx
-!/fibrils_collaboration/other_models/*
-!/fibrils_collaboration/relax/*.py
-!/fibrils_collaboration/relax/*.txt
-!/fibrils_collaboration/relax/*.xml
-!/fibrils_collaboration/scan_simulations/*.*
+!fibrils_collaboration/ehrmann/*.fasta
+!fibrils_collaboration/ehrmann/*.py
+!fibrils_collaboration/ehrmann/*.txt
+!fibrils_collaboration/ehrmann/ms_tau_only/MS_output.xlsx
+!fibrils_collaboration/other_models/*
+!fibrils_collaboration/relax/*.py
+!fibrils_collaboration/relax/*.txt
+!fibrils_collaboration/relax/*.xml
+!fibrils_collaboration/scan_simulations/*.*
 
 /images/*
 
@@ -51,9 +51,9 @@ $ cat .gitignore
 !/protease_design/primer_sequences/made_g-blocks.py
 !/protease_design/primer_sequences/Selections.xlsx
 
-/protease_design/*.xls*
+protease_design/*.xls*
 !/protease_design/expt_seqs.xlsx
-/protease_design/*.gcproj
+protease_design/*.gcproj
 
 /protocols/*
 /pyrosetta4.27.rel187/*
