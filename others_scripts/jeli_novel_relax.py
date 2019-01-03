@@ -1,0 +1,12 @@
+fr_mover = rosetta.protocols.relax.FastRelax(sfxn, "NO CST RAMPING")
+fr_mover.set_scorefxn(sfxn)
+fr_mover.constrain_coords(True)
+fr_mover.constrain_relax_to_start_coords(True)
+fr_mover.ramp_down_constraints(False)
+tf = pyrosetta.standard_task_factory()
+tf.push_back(rosetta.core.pack.task.operation.RestrictToRepacking())
+tf.push_back(rosetta.core.pack.task.operation.ExtraRotamers(0, 1, 1))
+tf.push_back(rosetta.core.pack.task.operation.ExtraRotamers(0, 2, 1))
+tf.push_back(rosetta.core.pack.task.operation.IncludeCurrent())
+fr_mover.set_task_factory(tf)
+# coord_constrain_sidechains

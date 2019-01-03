@@ -11,15 +11,19 @@ $ cat .gitignore
 !/esterase_collaboration/*.txt
 
 /fibrils_collaboration/*/
-!fibrils_collaboration/ehrmann/*.fasta
-!fibrils_collaboration/ehrmann/*.py
-!fibrils_collaboration/ehrmann/*.txt
-!fibrils_collaboration/ehrmann/ms_tau_only/MS_output.xlsx
-!fibrils_collaboration/other_models/*
-!fibrils_collaboration/relax/*.py
-!fibrils_collaboration/relax/*.txt
-!fibrils_collaboration/relax/*.xml
-!fibrils_collaboration/scan_simulations/*.*
+/fibrils_collaboration/*.pptx
+/fibrils_collaboration/grant_draft.docx
+/fibrils_collaboration/ehrmann/*
+/fibrils_collaboration/ehrmann/*.pdf
+#!/fibrils_collaboration/ehrmann/*.fasta
+#!/fibrils_collaboration/ehrmann/*.py
+#!/fibrils_collaboration/ehrmann/*.txt
+#!/fibrils_collaboration/ehrmann/ms_tau_only/MS_output.xlsx
+!/fibrils_collaboration/other_models/*
+!/fibrils_collaboration/relax/*.py
+!/fibrils_collaboration/relax/*.txt
+!/fibrils_collaboration/relax/*.xml
+!/fibrils_collaboration/scan_simulations/*.py
 
 /images/*
 
