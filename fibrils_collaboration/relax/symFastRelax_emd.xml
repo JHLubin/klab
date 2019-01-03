@@ -1,0 +1,24 @@
+<ROSETTASCRIPTS>
+    <TASKOPERATIONS>
+        <InitializeFromCommandline name="init"/>
+        <RestrictToRepacking name="restrict"/>
+        <IncludeCurrent name="keep_curr"/>
+    </TASKOPERATIONS>
+    <SCOREFXNS>
+        <ScoreFunction name="fa_symm_score" weights="ref2015_cst" symmetric="1"/>
+    </SCOREFXNS>''
+    <FILTERS>
+    </FILTERS>
+    <MOVERS>
+        <SetupForSymmetry name="setup_symm" definition="%%symfile%%"/>
+        <AtomCoordinateCstMover name="poseCST" coord_dev="0.8" bounded="true" bound_width="0.4" sidechain="false" native="false" />
+        <FastRelax name="fastrelax" scorefxn="fa_symm_score" task_operations="restrict" />
+    </MOVERS>
+    <APPLY_TO_POSE>
+    </APPLY_TO_POSE>
+    <PROTOCOLS>
+        <Add mover="setup_symm"/>
+        <Add mover="poseCST"/>
+        <Add mover="fastrelax"/>
+    </PROTOCOLS>
+</ROSETTASCRIPTS>
