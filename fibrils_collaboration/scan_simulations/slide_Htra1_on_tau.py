@@ -127,7 +127,7 @@ def main():
 		# 275 selected so that name reflects which residue is downstream scissile
 		seq = tau_seq[frame:frame + 5]
 		set_name = '_'.join([position_name, seq])
-		print set_name
+		print(set_name)
 
 		# Make threaded model
 		threaded_pose = thread_to_htra1(seq, pose)

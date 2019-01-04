@@ -73,4 +73,5 @@ for i in range(5,len(a_syn_seq)-6):
     score = 1
     for n, r in enumerate(frame):
         score *= bol_score[n][inds.index(r)]
-    print i, frame, score
+    print(i, frame, score)
+

@@ -42,7 +42,7 @@ def cleanup_mutations_section(report_lines, start_point):
 	as blank cells where a mutable residue is missing.
 	"""
 	max_len = max([len(line) for line in report_lines])
-	res_columns = range(start_point, max_len, 4)
+	res_columns = list(range(start_point, max_len, 4))
 
 	for c in res_columns:
 		mutated_residues = [int(line[c]) for line in report_lines if line[c] != "NONE"]
@@ -122,7 +122,7 @@ def main():
 			line_out += '   '.join(line[head_length + 1:])
 			r.write(line_out + '\n')
 
-		print report_name
+		print(report_name)
 
 if __name__ == '__main__':
 	main()

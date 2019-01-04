@@ -94,7 +94,7 @@ def get_mobile_range(chain_no, central_res=None, range_from_tug=None):
 
 	# Shouldn't happen, but just in case...
 	else:
-		print "Bug detected: received one input, not zero or two."
+		print("Bug detected: received one input, not zero or two.")
 		exit()
 
 
@@ -107,7 +107,7 @@ def get_bordering_atom_id(pose, site_chain, site_res, stack_position, atom):
 	"""
 	# Verifying correct atom name
 	if atom not in ['N', 'CA', 'C']:
-		print "Incorrect atom name"
+		print("Incorrect atom name")
 		exit()
 
 	neighbor_chain_number = site_chain + 2 * stack_position
@@ -126,7 +126,7 @@ def make_constraints(pose, chain_no, tug_site, tug_len):
 	"""
 	# Catch useless tugs
 	if tug_len < 5:
-		print "Default distance is roughly 5A, so pick something bigger for d"
+		print("Default distance is roughly 5A, so pick something bigger for d")
 		exit()
 
 	# Identifying target residue's CA
@@ -266,8 +266,8 @@ def main(args):
 
 			fr.apply(p)
 
-			print "\n" * 5, jd.current_name
-			print sf.show(p), "\n" * 5
+			print("\n" * 5, jd.current_name)
+			print(sf.show(p), "\n" * 5)
 
 			jd.output_decoy(p)
 

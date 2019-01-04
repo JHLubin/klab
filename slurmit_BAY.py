@@ -213,7 +213,7 @@ def main(argv):
 	
 	#Print the script to screen.
 	for line in slurm_script:
-		print(line),
+		print(line, end=' ')
 		
 	#Make a filename from the jobname, and then write the script.
 	scriptname = 'tmp_' + args.job + '.sh'

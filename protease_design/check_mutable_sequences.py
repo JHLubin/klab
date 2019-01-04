@@ -71,7 +71,7 @@ for pdb in pdb_set:
 	outline = [pbase, designed_seq, designed_status, original_seq, original_status, res_list]
 	with open(report, 'a') as out:
 		line = template.format(*outline)
-		print pbase, line[:-2]
+		print(pbase, line[:-2])
 		out.write(line)
 
 	# Collecting by mutated sequence
@@ -83,10 +83,10 @@ for pdb in pdb_set:
 # Writing output by designed sequence
 group_summary = 'new_design_pep+prot_fastdesign/result_pep_sequences.txt'
 with open(group_summary, 'w') as go:
-for s, pl in aggregated_list.iteritems():
-go.write('\nSequence:\t' + s + '\n')
-for p in pl:
-go.write('\t\t' + p + '\n')
+	for s, pl in list(aggregated_list.iteritems()):
+		go.write('\nSequence:\t' + s + '\n')
+		for p in pl:
+			go.write('\t\t' + p + '\n')
 
 """
 with open('new_design_pep+prot_fastdesign/mutated_peptides.txt','r') as r:

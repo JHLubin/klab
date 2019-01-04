@@ -62,7 +62,7 @@ def pick_expt_columns(first_expt_col, num_expts, num_cond, reps):
 	e_cols = []
 
 	for i in range(first_expt_col, last_expt_col, num_cols_per_expt):
-		c = [range(j, j + reps) for j in range(i, i + num_cols_per_expt, reps)]
+		c = [list(range(j, j + reps)) for j in range(i, i + num_cols_per_expt, reps)]
 		e_cols.append(c)
 
 	return e_cols

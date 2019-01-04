@@ -11,12 +11,12 @@ uncleaved = glob(join(basename('a_to_s_ly104_WT_UNcleaved_decoys'),"*best.pdb.gz
 
 sf=create_score_function('ref2015_cst')
 des_res=res_to_design('ly104_WT.pdb',8,[72,154])[2]
-pep_res=range(197,208)
+pep_res=list(range(197,208))
 
 with open('res_enetgies.txt', 'w') as w:
 	w.write('Cleaved\n')
 	for i in cleaved:
-		print i
+		print(i)
 		try:
 			pose=apply_constraints(pose_from_pdb(i))
 			sf(pose)
@@ -34,7 +34,7 @@ with open('res_enetgies.txt', 'w') as w:
 
 	w.write('\nUncleaved\n')
 	for i in uncleaved:
-		print i
+		print(i)
 		pose=apply_constraints(pose_from_pdb(i))
 		sf(pose)
 		energies=str(pose.energies()).split('\n')

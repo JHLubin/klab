@@ -58,22 +58,22 @@ def sort_score_file(score_file, score_term, n_models):
 
 		# Throwing errors of file name or score are not found
 		if decoy == None:
-			print "Not finding decoy name column correctly; check score file."
+			print("Not finding decoy name column correctly; check score file.")
 			exit(1)
 
 		if score == None:
-			print "Could not find specified score term; check input/score file."
+			print("Could not find specified score term; check input/score file.")
 			exit(1)
 
 		# Checking for duplicate names, and if none, adding to dict
 		if decoy in scores_dict:
-			print decoy, 'appeared a second time. Check source files.'
+			print(decoy, 'appeared a second time. Check source files.')
 			exit(1)
 		else:
 			scores_dict[decoy] = [score, line]
 
 	# Sorting, filtering
-	sorted_scores_dict = sorted(scores_dict.items(), key=lambda x: x[1][0])
+	sorted_scores_dict = sorted(list(scores_dict.items()), key=lambda x: x[1][0])
 	selection = sorted_scores_dict[:n_models]
 	sorted_files = [i[0] for i in selection]
 	sorted_lines = [i[1][1] for i in selection]
@@ -114,9 +114,9 @@ def main():
 		copyfile(join(source, threaded_pdb), join(dest, threaded_pdb))
 
 	# Copying over decoys
-	print "Copying files:"
+	print("Copying files:")
 	for fi in files_to_copy:
-		print '\t', fi
+		print('\t', fi)
 		designed = fi
 		relaxed = fi.replace('designed', 'relaxed')
 		copyfile(join(source, relaxed), join(dest, relaxed))

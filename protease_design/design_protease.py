@@ -127,7 +127,7 @@ def quick_thread(destination, pose, sequences, cleaved=False, make=False):
 		thread_files.append(out_name)
 
 		if make:
-			print out_name
+			print(out_name)
 			# Threading peptide sequences
 			tm = SimpleThreadingMover(seq, 197)
 			threaded_pose = Pose()
@@ -369,7 +369,7 @@ def make_task_factory(residue_selectors, confine_design=None):
 			{int(line.split()[0]):line.split()[1] for line in trms}
 
 		# Converting residues in the dict to a selector
-		res_concatenated = str(limited_set.keys()).strip('[]').replace(' ','')
+		res_concatenated = str(list(limited_set.keys())).strip('[]').replace(' ','')
 		small_des_set = ResidueIndexSelector(res_concatenated)
 		now_only_repack = NotResidueSelector(small_des_set)
 
@@ -381,7 +381,7 @@ def make_task_factory(residue_selectors, confine_design=None):
 		tf.push_back(OperateOnResidueSubset(repack, no_longer_designable))
 
 		# Limiting design on residues in the file
-		for res, AAs in limited_set.items():
+		for res, AAs in list(limited_set.items()):
 			designable_res = ResidueIndexSelector(str(res))
 			restrict_AAs = RestrictAbsentCanonicalAASRLT()
 			restrict_AAs.aas_to_keep(AAs)
@@ -632,7 +632,7 @@ class mutation_collection:
 		the sequence is.
 		"""
 		breakup = name.split('_')
-		print breakup
+		print(breakup)
 
 		# Determining whether sequence is cleaved
 		cleavage = breakup[0]
@@ -674,7 +674,7 @@ def set_design(pdb, residue_selectors, args):
 		pp.assign(pose)
 
 		# Relaxing
-		print 'relaxing'
+		print('relaxing')
 		relax_name = jd.current_name.replace('designed', 'relaxed')
 		pp = fastrelax(pp, sf, mm)
 		relaxed_struc = Pose()
@@ -682,7 +682,7 @@ def set_design(pdb, residue_selectors, args):
 		relaxed_struc.dump_pdb(relax_name)
 
 		# Doing design, default is FastDesign
-		print 'designing'
+		print('designing')
 		if args.method == 'custom':
 			pp = custom_design(pp, sf, mm, tf, 20)
 		else:
@@ -703,7 +703,7 @@ def set_design(pdb, residue_selectors, args):
 		scores = [score_change, des_res_E_sum, res_score_change, ddg, ddg_change, pro_mut]
 		temp = "score_change {}   residue_scores: {}   residue_score_change: {}   ddG: {}   ddG_change: {}   mutations: {}"
 		score_text = temp.format(*[str(i) for i in scores])
-		print score_text, '\n'
+		print(score_text, '\n')
 		jd.additional_decoy_info = score_text
 
 		jd.output_decoy(pp)
@@ -730,7 +730,7 @@ def main():
 	pose = pose_from_pdb(args.start_struct)
 	make = args.thread
 	if make:
-		print "Threading"
+		print("Threading")
 	t_structs = quick_thread(dir_nam, pose, cut_seq, cleaved=True, make=make)
 	t_structs += quick_thread(dir_nam, pose, uncut_seq, make=make)
 

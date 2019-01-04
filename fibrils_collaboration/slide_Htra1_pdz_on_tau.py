@@ -135,7 +135,7 @@ def main():
 		# P276 is the first frame's C-terminal residue
 		seq = tau_seq[frame:frame + 7]
 		set_name = '_'.join([position_name, seq])
-		print set_name
+		print(set_name)
 
 		for n, pose in enumerate(poses):
 			# Creating relaxed decoys

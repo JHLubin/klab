@@ -12,7 +12,7 @@ from pyrosetta import *
 from pyrosetta.teaching import EMapVector
 from pyrosetta.rosetta import *
 from design_protease import *
-import cPickle as pickle
+import pickle as pickle
 
 # Residue type positive (+), negative (-), neutral polar (N), hydrophobic (O)
 res_types = {'A':'O', 'C':'N', 'D':'-', 'E':'-', 'F':'O', 'G':'O', 
@@ -62,7 +62,7 @@ class mutation_collection:
 
 		# Iterating through all decoys extracting relevant info
 		for i in range(self.decoy_count):
-			print '\tanalyzing decoy', i + 1
+			print('\tanalyzing decoy', i + 1)
 			self.ident_mutations(self.relaxed_pdbs[i], self.designed_pdbs[i])
 
 		# Getting mutation frequencies, energy averages
@@ -108,11 +108,11 @@ class mutation_collection:
 			self.cleaved = 'uncleaved'
 		else:
 			self.cleaved = 'cleaved'
-		print '\n', self.sequence, self.cleaved
+		print('\n', self.sequence, self.cleaved)
 
 		self.short_sequence = self.sequence[1:7]
 		self.classify_residues()
-		print self.short_sequence
+		print(self.short_sequence)
 
 	def collect_models(self):
 		""" Collects threaded, designed, and relaxed decoys """
@@ -511,7 +511,7 @@ class mutations_aggregate:
 		can interact. mutable_residues_selector and selector_to_list are from 
 		design_protease.
 		"""
-		peptide_residues = range(198, 204)
+		peptide_residues = list(range(198, 204))
 		res_selectors = [mutable_residues_selector(single_pep_res=i) 
 			for i in peptide_residues]
 		pep_res_partners = [[] for i in peptide_residues]
@@ -538,7 +538,7 @@ class mutations_aggregate:
 				residue_interactions[ind].append(peptide_residues[n])
 
 		if self.design_peptide: 
-			print residue_interactions + pep_res_partners
+			print(residue_interactions + pep_res_partners)
 			return residue_interactions + pep_res_partners	
 		else: 
 			return residue_interactions	
@@ -732,7 +732,7 @@ class mutations_aggregate:
 							interaction_sets[x][mut] = [decoy_energy]
 
 		for i, res in enumerate(interaction_sets):
-			for v in res.values():
+			for v in list(res.values()):
 				v.sort(key=lambda x: (x[0][i], x[1]))
 
 		return interaction_sets
@@ -752,7 +752,7 @@ class mutations_aggregate:
 		# Rearranging the interaction_sets
 		rearranged_int_set = [{} for i in self.pep_res]
 		for n, res in enumerate(interaction_sets):
-			for k, v in res.items():
+			for k, v in list(res.items()):
 				for decoy in v:	
 					aa = decoy[0][n]
 					if aa not in rearranged_int_set[n]: 
@@ -768,8 +768,8 @@ class mutations_aggregate:
 
 		# Sorting the rearranged list
 		for i in rearranged_int_set:
-			for val in i.values():
-				for v in val.values():
+			for val in list(i.values()):
+				for v in list(val.values()):
 					v.sort(key=lambda x: x[0])
 					while len(v) > 3: # Paring down to best three decoys
 						v.pop(-1)
@@ -800,7 +800,7 @@ def aggregated_report(name, mc_set):
 				line.append('')
 			r.write(template.format(*line))
 
-	print name
+	print(name)
 	return ma
 
 
@@ -824,8 +824,8 @@ def representative_decoys_report(name, aggregate):
 	lines = []
 	for n, i in enumerate(rep_set):
 		locus = position_ref[n]
-		for aa, v in i.items():
-			for mut, decs in v.items():
+		for aa, v in list(i.items()):
+			for mut, decs in list(v.items()):
 				min_e = decs[0][0] # decoys are sorted, energy is first
 				e_change = decs[0][1] # decoys are sorted, energy is first
 				decoys = [x[2] for x in decs]
@@ -844,7 +844,7 @@ def representative_decoys_report(name, aggregate):
 		for line in lines:
 			r.write(template.format(*line))
 
-	print name
+	print(name)
 
 
 ##############################################################################
@@ -886,7 +886,7 @@ def main():
 		with open(pickle_name, 'wb') as out:
 			pickle.dump(seq_mutants, out, protocol=-1)
 
-		print report_name
+		print(report_name)
 
 	else:
 		# Retrieving pickled info

@@ -121,7 +121,7 @@ def cluster_pdbs(mutation_profiles):
 	design_group objects based on the number of decoys that they represent.
 	"""
 	clusters = []
-	for pro, sco in mutation_profiles.items():
+	for pro, sco in list(mutation_profiles.items()):
 		clusters.append(design_group(pro, [score_head] + sco))
 
 	clist = [(i, i.frequency) for i in clusters]
@@ -200,7 +200,7 @@ def write_pymol(odir, seq, clusters):
 		cmds.append('')
 
 	# Outputting comments
-	for p, [i, e] in comments.items():
+	for p, [i, e] in list(comments.items()):
 		comment = '"' + p + ' included decoys: '
 		comment += ', '.join([str(n) for n in i])
 		if len(e) == 0:
@@ -218,7 +218,7 @@ def write_pymol(odir, seq, clusters):
 	script_name = join(odir, 'view_' + seq + '.pml')
 	with open(script_name, 'w') as w:
 		w.writelines(cmds)
-	print script_name
+	print(script_name)
 
 
 def main(folder):
@@ -250,7 +250,7 @@ def main(folder):
 		# Clustering scores lines by mutation profile
 		m_profiles = cluster_designs(scores_lines, head_len)
 		clusters = []
-		for pro, sco in m_profiles.items():
+		for pro, sco in list(m_profiles.items()):
 			clusters.append(design_group(pro, [score_head] + sco))
 		
 		# Writing PyMOL script
