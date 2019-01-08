@@ -94,13 +94,12 @@ def main():
 
 				if i == f_lines[0] and f == fasc_files[0]:
 					headline = scores_section[::2]
-					mut_section_ind = len(scores_section) / 2 + 1 # Specific to design_protease
+					mut_section_ind = int(len(scores_section) / 2 + 1) # Specific to design_protease
 
 				lines_data.append(text_to_numbers(line_data))
 
 			lines_data.sort(key=lambda x: x[1]) # Sorting by total score
 			report_lines += lines_data
-
 
 	# Making combined report
 	report_name = join(folder, base_name + '_combined_reports.fasc')
