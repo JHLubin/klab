@@ -1,0 +1,59 @@
+HETATM    1  PA  UTP A 301       9.479 -16.890  21.859  1.00 33.74           P  
+HETATM    2  PB  UTP A 301      10.074 -14.132  21.598  1.00 32.92           P  
+HETATM    3  PG  UTP A 301      12.992 -14.032  20.844  1.00 29.13           P  
+HETATM    4  C5' UTP A 301       8.248 -19.006  22.168  1.00 41.70           C  
+HETATM    5  O5' UTP A 301       8.007 -17.653  22.221  1.00 36.45           O  
+HETATM    6  C4' UTP A 301       7.920 -19.850  23.331  1.00 43.58           C  
+HETATM    7  O4' UTP A 301       7.195 -19.395  24.469  1.00 43.54           O  
+HETATM    8  C3' UTP A 301       7.382 -21.123  22.796  1.00 43.39           C  
+HETATM    9  O3' UTP A 301       8.529 -21.959  22.771  1.00 42.64           O  
+HETATM   10  C2' UTP A 301       6.332 -21.495  23.793  1.00 43.46           C  
+HETATM   11  O2' UTP A 301       6.381 -22.867  24.192  1.00 43.93           O  
+HETATM   12  C1' UTP A 301       6.597 -20.563  25.011  1.00 42.70           C  
+HETATM   13  N1  UTP A 301       5.335 -20.291  25.719  1.00 40.92           N  
+HETATM   14  O1A UTP A 301       9.597 -16.912  20.317  1.00 33.32           O1-
+HETATM   15  O1B UTP A 301      10.309 -12.971  22.568  1.00 34.99           O1-
+HETATM   16  O1G UTP A 301      12.950 -12.510  20.464  1.00 28.03           O  
+HETATM   17  C2  UTP A 301       5.231 -20.663  27.078  1.00 39.89           C  
+HETATM   18  O2  UTP A 301       6.133 -21.181  27.713  1.00 40.56           O  
+HETATM   19  O2A UTP A 301      10.597 -17.776  22.462  1.00 29.30           O  
+HETATM   20  O2B UTP A 301       8.875 -13.825  20.645  1.00 32.12           O  
+HETATM   21  O2G UTP A 301      13.683 -14.914  19.802  1.00 29.55           O1-
+HETATM   22  N3  UTP A 301       4.003 -20.392  27.654  1.00 40.15           N  
+HETATM   23  O3A UTP A 301       9.712 -15.402  22.556  1.00 33.94           O  
+HETATM   24  O3B UTP A 301      11.431 -14.596  20.751  1.00 34.31           O  
+HETATM   25  O3G UTP A 301      13.514 -14.248  22.292  1.00 31.19           O  
+HETATM   26  C4  UTP A 301       2.878 -19.804  27.038  1.00 41.73           C  
+HETATM   27  O4  UTP A 301       1.839 -19.630  27.690  1.00 42.30           O  
+HETATM   28  C5  UTP A 301       3.052 -19.448  25.655  1.00 39.94           C  
+HETATM   29  C6  UTP A 301       4.269 -19.707  25.052  1.00 41.21           C  
+CONECT    1    5   14   19   23
+CONECT    2   15   20   23   24
+CONECT    3   16   21   24   25
+CONECT    4    5    6
+CONECT    5    1    4
+CONECT    6    4    7    8
+CONECT    7    6   12
+CONECT    8    6    9   10
+CONECT    9    8
+CONECT   10    8   11   12
+CONECT   11   10
+CONECT   12    7   10   13
+CONECT   13   12   17   29
+CONECT   14    1
+CONECT   15    2
+CONECT   16    3
+CONECT   17   13   18   22
+CONECT   18   17
+CONECT   19    1
+CONECT   20    2
+CONECT   21    3
+CONECT   22   17   26
+CONECT   23    1    2
+CONECT   24    2    3
+CONECT   25    3
+CONECT   26   22   27   28
+CONECT   27   26
+CONECT   28   26   29
+CONECT   29   13   28
+END
