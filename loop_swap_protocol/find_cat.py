@@ -207,7 +207,7 @@ def get_cat_res(in_pose):
 	for h, [sers, acids] in potential_triads.items():
 		for s in sers:
 			for a in acids: 
-
+				pass
 
 
 
