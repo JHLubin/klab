@@ -1,5 +1,6 @@
 import argparse
 from pyrosetta import *
+from pyrosetta.rosetta.core.scoring import ScoreType as st
 from pyrosetta.rosetta.protocols.constraint_generator import \
 	AddConstraints, CoordinateConstraintGenerator
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
@@ -30,8 +31,10 @@ def parse_args():
 		help="List residues that should be immobile, separated by spaces")
 	parser.add_argument('-cst', "--constraints", default=None,
 		help="If constraints are to be applied, specify the file")
-	parser.add_argument('-wt', "--cst_wt", type=float, default=1.0,
-		help="Specify the constraints weight (applies to both coordinate and enzdes, default: 1.0")
+	parser.add_argument('-ccw', "--coord_wt", type=float, default=None,
+		help="Specify the coordinate constraints weight (Default: 1.0)")
+	parser.add_argument('-edw', "--enzdes_wt", type=float, default=None,
+		help="Specify the constraints weight for enzdes constraints (Default: 1.0)")
 	args = parser.parse_args()
 	return args
 
@@ -47,9 +50,19 @@ def main(args):
 		enz_cst = AddOrRemoveMatchCsts()
 		enz_cst.set_cst_action(ADD_NEW)
 
+	# Setting up the scorefunction with the desired constraint weights
+	sf = create_score_function(args.score_function)
+
+	if args.coord_wt:
+		sf.set_weight(st.coordinate_constraint, args.coord_wt)
+
+	if args.enzdes_wt:
+		sf.set_weight(st.atom_pair_constraint, args.enzdes_wt)
+		sf.set_weight(st.angle_constraint, args.enzdes_wt)
+		sf.set_weight(st.dihedral_constraint, args.enzdes_wt)
+
 	# Creating FastRelax protocol with the given score function
 	fr = FastRelax()
-	sf = create_score_function(args.score_function)
 	fr.set_scorefxn(sf)
 
 	# Creating a movemap with backbone fixed, side chains mobile
@@ -85,7 +98,7 @@ def main(args):
 if __name__ == '__main__':
 	args = parse_args()
 
-	opts = '-cst_fa_weight {}'.format(args.cst_wt)
+	opts = '-cst_fa_weight 1.0'
 	if args.constraints:
 		opts += ' -enzdes::cstfile {} -run:preserve_header'.format(args.constraints)
 	init(opts)
