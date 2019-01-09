@@ -30,6 +30,8 @@ def parse_args():
 		help="List residues that should be immobile, separated by spaces")
 	parser.add_argument('-cst', "--constraints", default=None,
 		help="If constraints are to be applied, specify the file")
+	parser.add_argument('-wt', "--cst_wt", type=float, default=1.0,
+		help="Specify the constraints weight (applies to both coordinate and enzdes, default: 1.0")
 	args = parser.parse_args()
 	return args
 
@@ -82,10 +84,11 @@ def main(args):
 
 if __name__ == '__main__':
 	args = parse_args()
+
+	opts = '-cst_fa_weight {}'.format(args.cst_wt)
 	if args.constraints:
-		init('-enzdes::cstfile {} -cst_fa_weight 1.0 -run:preserve_header'.format(args.constraints))
-	else:
-		init('-cst_fa_weight 1.0')
+		opts += ' -enzdes::cstfile {} -run:preserve_header'.format(args.constraints)
+	init(opts)
 	
 	main(args)
 
