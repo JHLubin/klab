@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Using the amino acid sequence from a fasta for a fibrillary protein (such as 
 tau, 5o3l), this script threads a sliding frame of residues from the fibril 
