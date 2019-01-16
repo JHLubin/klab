@@ -17,6 +17,7 @@ $ cat .gitignore
 !/fibrils_collaboration/ehrmann/*.py
 !/fibrils_collaboration/ehrmann/*.txt
 !/fibrils_collaboration/ehrmann/ms_tau_only/MS_output.xlsx
+/fibrils_collaboration/ext_cat_flexpep/*
 /fibrils_collaboration/ext_cat_tau_slide/*
 /fibrils_collaboration/papers/*
 /fibrils_collaboration/relax/*

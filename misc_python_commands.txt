@@ -362,10 +362,10 @@ npws.dump_pdb('../images/protease_grant/npws.pdb')
 for i in [wpws, wpns, npws, npns]:
     print sf(i)
 
-
-from glob import glob
-check_pdbs = glob('manasi_sequences/cleaved_ly104_wt_*_relaxed_*.pdb')
-check_pdbs
-check_scores = [pose_from_pdb(i) for i in check_pdbs]
-for n,i in enumerate(check_scores):
-    print check_pdbs[n], sf(i)
+from pyrosetta import *
+from rosetta import *
+init("-packing:resfile <your_resfile> -receptor_chain A -peptide_chain B -lowres_abinitio true -flexPepDocking:design_peptide true -cst_fa_weight 1.0")
+fpdock = protocols.flexpep_docking.FlexPepDockingProtocol()
+pose= pose_from_pdb("<your_pdb>")
+fpdock.apply(pose)
+pose.dump_pdb("test_out.pdb") # replace this with job distributor output

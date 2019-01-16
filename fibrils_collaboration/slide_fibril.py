@@ -148,7 +148,7 @@ def main(args):
 
 		# Make threaded model
 		threaded_pose = thread_to_htra1(seq, pose)
-		threaded_name = join(args.out_dir, 'threaded_htra1_' + set_name + '.pdb')
+		threaded_name = join(args.out_dir, 'htra1_threaded_' + set_name + '.pdb')
 		if not isfile(threaded_name):
 			threaded_pose.dump_pdb(threaded_name)
 
