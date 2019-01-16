@@ -1,5 +1,7 @@
 import argparse
 from pyrosetta import *
+from pyrosetta.rosetta.core.pack.task.operation import \
+	ExtraRotamers, IncludeCurrent, RestrictToRepacking
 from pyrosetta.rosetta.core.scoring import ScoreType as st
 from pyrosetta.rosetta.protocols.constraint_generator import \
 	AddConstraints, CoordinateConstraintGenerator
@@ -65,15 +67,13 @@ def main(args):
 	fr = FastRelax()
 	fr.set_scorefxn(sf)
 
-	# Creating a movemap with backbone fixed, side chains mobile
-	mm = MoveMap()
-	mm.set_bb(False)
-	mm.set_chi(True)
-	if args.cat_res:
-		# Side chains fixed for specified catalytic residues
-		for i in args.cat_res:
-		    mm.set_chi(i, False)
-	fr.set_movemap(mm)
+	# Packer tasks
+	tf = standard_task_factory()
+	tf.push_back(RestrictToRepacking())
+	tf.push_back(IncludeCurrent())
+	tf.push_back(ExtraRotamers(0, 1, 1))
+	tf.push_back(ExtraRotamers(0, 2, 1))
+	fr.set_task_factory(tf)
 
 	# Determining file name
 	if args.name: 
