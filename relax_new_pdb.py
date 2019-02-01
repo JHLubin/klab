@@ -7,7 +7,8 @@ from pyrosetta.rosetta.protocols.constraint_generator import \
 	AddConstraints, CoordinateConstraintGenerator
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
 from pyrosetta.rosetta.protocols.relax import FastRelax
-from os.path import basename
+from os import makedirs
+from os.path import basename, isdir, join
 
 '''
 When downloading a new PDB file, relax with coordinate constraints to eliminate clashes.
@@ -23,6 +24,8 @@ Catalytic residues (-cat, int, multiple accepted): list residues that should not
 def parse_args():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("pdb_file", help="What PDB file do you want to relax?")
+	parser.add_argument("-od", "--out_dir", 
+		help="Name an output directory for decoys (Default: current directory)")
 	parser.add_argument('-name', "--name", 
 		help="What do you want to name the relaxed PDB? (Default appends '_relaxed' to original name.)")
 	parser.add_argument('-n', "--n_decoys", type=int, default=100, 
@@ -42,6 +45,14 @@ def parse_args():
 
 
 def main(args):
+	# Destination folder for PDB files
+	if args.out_dir:
+		dir_name = args.out_dir
+		if not isdir(dir_nam):
+			makedirs(dir_nam)
+	else:
+		dir_name = ""
+
 	# Creating coordinate constraints for the entire molecule
 	cg = CoordinateConstraintGenerator()
 	ac = AddConstraints()
@@ -77,9 +88,11 @@ def main(args):
 
 	# Determining file name
 	if args.name: 
-		out_name = args.name
+		file_name = args.name
 	else:
-		outname = basename(args.pdb_file).replace('.pdb', 'relaxed')
+		file_name = basename(args.pdb_file).replace('.pdb', 'relaxed')
+
+	out_name = join(dir_name, file_name)
 
 	# Loading PDB file, applying constraints, relaxing
 	pose = pose_from_pdb(args.pdb_file)
@@ -98,7 +111,7 @@ def main(args):
 if __name__ == '__main__':
 	args = parse_args()
 
-	opts = '-ex1 -ex2 -keep_native -flip_HNQ -no_optH false -cst_fa_weight 1.0'
+	opts = '-ex1 -ex2 -use_input_sc -flip_HNQ -no_optH false -cst_fa_weight 1.0'
 	if args.constraints:
 		opts += ' -enzdes::cstfile {} -run:preserve_header'.format(args.constraints)
 	init(opts)
