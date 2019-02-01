@@ -1,6 +1,28 @@
 To Do
+	HCV
+		Rerun DVDAR, 3 colonies each for WT and F2R2, 3 technical repeats on one of the colonies
+		Develop quantitation procedure on 2D plots that use diagonal bin counts
+	Htra1
+		Order primers to put Htra1 and Htra1+PDZ into Ly104
+		Design around 90 (86-92)
+		Computation
+			Get good cat relax
+			Improve scans
+			Develop better extended cat model, scan both fibril sequences
+			Develop PDZ extended model
+			Scan both fibrils on PDZ and ext PDZ
+	UCK2
+		Make constraints
+		Relax the model
+		Run design to find better sites
+			4-thiouridine + Y65G had no activity, relates to Y112
+			Stability loss around F89?
+			Bigs clash with Asp62
+			Maybe re-backbone 87-91 loop
+	Lit
+		Check for papers using split HCV
+
 	Update design protocol
-		Add -ex1 -ex2 -keep_native flags
 		Extend to non-HCV
 		"What sorts of sequences had this mutation?"
 		Add sequence change classification, compared to cannonical sequences?
@@ -76,29 +98,29 @@ HTRA1
 	Loop LD influenced by trimer--res 283-291
 	Cat res H220, D250, S328
 	Oxyanion hole res 325-327 on loop L1
-PDZ
-	Seems to have 4-residue recognition requirement, longer hybridization
-	Likes carboxyl groups at 0, but for C-terminal, likes hydrophobic side chin
-	Likes W at -1
-	Runyon 2007 did see some substrate specificity differences in Ala scans
-	A few mutations can radically alter ubstrate specificity
-		Maybe check library of PDZ's and their substrate specificities?
-	Trp at -1 may bind protease and activate
-	No impact on free peptide cleavage--only fibrils
-Tau
-	Phosphorylation?
-	2N4R
-		MAEPRQEFEVMEDHAGTYGLGDRKDQGGYTMHQDQEGDTDAGLKESPLQTPTEDGSEEPGSETSDAKSTPTAEDVTAPLVDEGAPGKQAAAQPHTEIPEGTTAEEAGIGDTPSLEDEAAGHVTQARMVSKSKDGTGSDDKKAKGADGKTKIATPRGAAPPGQKGQANATRIPAKTPPAPKTPPSSGEPPKSGDRSGYSSPGSPGTPGSRSRTPSLPTPPTREPKKVAVVRTPPKSPSSAKSRLQTAPVPMPDLKNVKSKIGSTENLKHQPGGGKVQIINKKLDLSNVQSKCGSKDNIKHVPGGGSVQIVYKPVDLSKVTSKCGSLGNIHHKPGGGQVEVKSEKLDFKDRVQSKIGSLDNITHVPGGGNKKIETHKLTFRENAKAKTDHGAEIVYKSPVVSGDTSPRHLSNVSSTGSIDMVDSPQLATLADEVSASLAKQGL
-	Fibril core: 306-378
-MS data
-	Oddly, most sites that have soluble cleaved but not fibril are outside core
-	WT does seem to prefer hydrophobic P1
-	Are fibril and soluble that different?
-	Jim Wells, Subtiligase N-terminal proteomics
-	Scatter correlate fibril vs soluble, 10 min, cleaved at all
-		How soluble and fibril correlate changing in time?
-		May need NMR here
-	Vertical plot with fibril on one side, soluble on other
+	PDZ
+		Seems to have 4-residue recognition requirement, longer hybridization
+		Likes carboxyl groups at 0, but for C-terminal, likes hydrophobic side chin
+		Likes W at -1
+		Runyon 2007 did see some substrate specificity differences in Ala scans
+		A few mutations can radically alter ubstrate specificity
+			Maybe check library of PDZ's and their substrate specificities?
+		Trp at -1 may bind protease and activate
+		No impact on free peptide cleavage--only fibrils
+	Tau
+		Phosphorylation?
+		2N4R
+			MAEPRQEFEVMEDHAGTYGLGDRKDQGGYTMHQDQEGDTDAGLKESPLQTPTEDGSEEPGSETSDAKSTPTAEDVTAPLVDEGAPGKQAAAQPHTEIPEGTTAEEAGIGDTPSLEDEAAGHVTQARMVSKSKDGTGSDDKKAKGADGKTKIATPRGAAPPGQKGQANATRIPAKTPPAPKTPPSSGEPPKSGDRSGYSSPGSPGTPGSRSRTPSLPTPPTREPKKVAVVRTPPKSPSSAKSRLQTAPVPMPDLKNVKSKIGSTENLKHQPGGGKVQIINKKLDLSNVQSKCGSKDNIKHVPGGGSVQIVYKPVDLSKVTSKCGSLGNIHHKPGGGQVEVKSEKLDFKDRVQSKIGSLDNITHVPGGGNKKIETHKLTFRENAKAKTDHGAEIVYKSPVVSGDTSPRHLSNVSSTGSIDMVDSPQLATLADEVSASLAKQGL
+		Fibril core: 306-378
+	MS data
+		Oddly, most sites that have soluble cleaved but not fibril are outside core
+		WT does seem to prefer hydrophobic P1
+		Are fibril and soluble that different?
+		Jim Wells, Subtiligase N-terminal proteomics
+		Scatter correlate fibril vs soluble, 10 min, cleaved at all
+			How soluble and fibril correlate changing in time?
+			May need NMR here
+		Vertical plot with fibril on one side, soluble on other
 
 	DID PROTEASE CUT WITHOUT PDZ
 		Tennstaedt 2012--Yes (small fragment substrate), though not as well as WT, until tau present, then cut better
@@ -154,6 +176,13 @@ Ideas
 		Put in repulsive constraints on a middle fiber to push out of alignment, then rescore. Repeat with different residues to determine where it's least unfavorable to pull apart the fibril.
 		ssNMR of PDZ binding internal sequence
 		Test effect of assembly on tau degradation (Jo 2014)
+	Design
+		Target protein
+			A10 (human blood)
+		Targets to cleave
+			Superantigen
+			PDL1 (anti PD) and 2
+			Leukemia
 	
 	Would be nice if movemap worked with residue selectors
 	Would be nice if designing with FlexPepDock didn't require flags and a resfile, had setter for score function
@@ -164,6 +193,7 @@ Ideas
 		Interface residue pair-scores
 		Scaling by residue mutation propensity?
 	XX Getting a sense of cleavage efficiency for known cleaved, vs. different Rosetta scores
+
 
 Literature to seek
 	--Perona & Craik Proteins/Protein Science 1995, 1997

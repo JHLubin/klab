@@ -98,7 +98,7 @@ def main(args):
 if __name__ == '__main__':
 	args = parse_args()
 
-	opts = '-cst_fa_weight 1.0'
+	opts = '-ex1 -ex2 -keep_native -flip_HNQ -no_optH false -cst_fa_weight 1.0'
 	if args.constraints:
 		opts += ' -enzdes::cstfile {} -run:preserve_header'.format(args.constraints)
 	init(opts)

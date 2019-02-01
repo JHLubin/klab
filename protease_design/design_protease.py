@@ -62,7 +62,8 @@ def parse_args():
 
 def init_opts(cst_file='ly104.cst'):
 	""" Produces a list of init options for PyRosetta, including cst file """
-	ros_opts = '-mute all -enzdes::cstfile ' + cst_file
+	ros_opts = '-ex1 -ex2  -use_input_sc -flip_HNQ'
+	ros_opts += ' -mute all -enzdes::cstfile ' + cst_file
 	ros_opts += ' -cst_fa_weight 1.0 -run:preserve_header -out:pdb_gz'
 	return ros_opts
 
@@ -357,6 +358,9 @@ def make_task_factory(residue_selectors, confine_design=None):
 	repack = RestrictToRepackingRLT() # No design
 
 	tf = TaskFactory()
+	tf.push_back(IncludeCurrent())
+	tf.push_back(ExtraRotamers(0, 1, 1))
+	tf.push_back(ExtraRotamers(0, 2, 1))
 	tf.push_back(OperateOnResidueSubset(prevent, other_set))
 	tf.push_back(OperateOnResidueSubset(repack, repack_set))
 	# Everything else left designable by default
