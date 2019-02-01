@@ -48,8 +48,8 @@ def main(args):
 	# Destination folder for PDB files
 	if args.out_dir:
 		dir_name = args.out_dir
-		if not isdir(dir_nam):
-			makedirs(dir_nam)
+		if not isdir(dir_name):
+			makedirs(dir_name)
 	else:
 		dir_name = ""
 
