@@ -369,3 +369,19 @@ fpdock = protocols.flexpep_docking.FlexPepDockingProtocol()
 pose= pose_from_pdb("<your_pdb>")
 fpdock.apply(pose)
 pose.dump_pdb("test_out.pdb") # replace this with job distributor output
+
+
+from pyrosetta import *; init('-mute core')
+from pyrosetta.rosetta.core.simple_metrics.metrics import RMSDMetric
+from pyrosetta.rosetta.core.select.residue_selector import ChainSelector
+from glob import glob
+from os.path import basename
+ref_pose=pose_from_pdb('ext_cat_flexpep/htra1_protease_ext_subst_08_28.pdb')
+rmm = RMSDMetric(ref_pose,ChainSelector('B'))
+pdbs = glob('ext_cat_flexpep/*.pdb')
+for pdb in pdbs:
+    pose=pose_from_pdb(pdb)
+    rmsd = rmm.calculate(pose)
+    print(basename(pdb),'\t', rmsd)
+
+

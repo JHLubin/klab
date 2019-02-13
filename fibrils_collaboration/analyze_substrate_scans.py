@@ -4,7 +4,8 @@ from operator import itemgetter
 from os.path import basename, join
 from pyrosetta import *
 from pyrosetta.rosetta.core.scoring import ScoreType as st
-from pyrosetta.rosetta.core.select.residue_selector import ChainSelector, NeighborhoodResidueSelector
+from pyrosetta.rosetta.core.select.residue_selector import \
+	ChainSelector, NeighborhoodResidueSelector, ResidueIndexSelector
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
 from statistics import stdev
 
@@ -19,6 +20,9 @@ def parse_args():
 		only the basename will appear.)")
 	parser.add_argument("-c", "--constraints", type=str, default='htra1_protease.cst',
 		help="Pick a constraints file for the enzyme")
+	parser.add_argument("-n", "--name", type=str, 
+		help="Pick an output file name")
+
 	args = parser.parse_args()
 	return args
 
@@ -162,15 +166,16 @@ def selector_to_list(pose, selector):
 
 def fix_file(pdb):
 	bn = basename(pdb)
-	last_res = bn[19]
+	last_res = bn[36] #HACKY
 
 	aa = {'A':'ALA', 'C':'CYS','D':'ASP','E':'GLU', 'F':'PHE','G':'GLY','H':'HIS','I':'ILE','K':'LYS','L':'LEU','M':'MET','N':'ASN','P':'PRO','Q':'GLN','R':'ARG','S':'SER','T':'THR','V':'VAL','W':'TRP','Y':'TYR'}
 
 	with open(pdb, 'r') as r:
 		lines = r.readlines()
 
-	lines.pop(6)
-	lines.pop(6)
+	if 'LINK' in lines[6]:
+		lines.pop(6)
+		lines.pop(6)
 
 	for l in lines[2:6]:
 		lines[lines.index(l)]=l.replace('VAL',aa[last_res])
@@ -181,7 +186,7 @@ def fix_file(pdb):
 
 def get_pose_discrimination_scores(pdb):
 	fix_file(pdb)
-	num = basename(pdb)[11:14]
+	nam = basename(pdb)
 	pose = pose_from_pdb(pdb)
 
 	# Enzdes constraints
@@ -192,7 +197,8 @@ def get_pose_discrimination_scores(pdb):
 	sf = create_score_function('ref2015_cst')
 	sf(pose)
 
-	pep_res = selector_to_list(pose, ChainSelector('B'))
+	#pep_res = selector_to_list(pose, ChainSelector('B'))
+	pep_res = selector_to_list(pose, ResidueIndexSelector('212-218'))
 
 	neigh = NeighborhoodResidueSelector()
 	neigh.set_distance(8)
@@ -216,9 +222,9 @@ def get_pose_discrimination_scores(pdb):
 
 	discriminator = 1 * prot_score + 1 * pep_score + 3.5 * cst_score
 
-	print(prot_score, pep_score, cst_score, discriminator)
+	print(nam, prot_score, pep_score, cst_score, discriminator)
 
-	return [num, prot_score, pep_score, cst_score, discriminator]
+	return [nam, prot_score, pep_score, cst_score, discriminator]
 
 
 def matching_seqs(seq_1, seq_2, frame_size, threshold):
@@ -248,23 +254,24 @@ def main(args):
 		best_decoys.append(f_cleaned[0])
 
 	#for n, i in enumerate(best_decoys):
-	#	with open('dummy.txt', 'a') as w:
+	#	with open(args.name + '_scores.txt', 'a') as w:
 	#		if n == 0:
 	#			w.write('\t'.join(list(i.keys()))+'\n')
 	#		w.write('\t'.join([str(i) for i in list(i.values())])+'\n')
 
 	# Get residue scores
-	pdbs_to_check = ['scan_simulations/new_cat_scan_asyn/htra1_scan_005_MDVFM_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_006_DVFMK_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_007_VFMKG_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_008_FMKGL_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_009_MKGLS_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_010_KGLSK_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_011_GLSKA_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_012_LSKAK_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_013_SKAKE_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_014_KAKEG_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_015_AKEGV_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_016_KEGVV_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_017_EGVVA_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_018_GVVAA_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_019_VVAAA_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_020_VAAAE_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_021_AAAEK_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_022_AAEKT_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_023_AEKTK_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_024_EKTKQ_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_025_KTKQG_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_026_TKQGV_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_027_KQGVA_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_028_QGVAE_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_029_GVAEA_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_030_VAEAA_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_031_AEAAG_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_032_EAAGK_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_033_AAGKT_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_034_AGKTK_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_035_GKTKE_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_036_KTKEG_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_037_TKEGV_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_038_KEGVL_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_039_EGVLY_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_040_GVLYV_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_041_VLYVG_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_042_LYVGS_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_043_YVGSK_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_044_VGSKT_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_045_GSKTK_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_046_SKTKE_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_047_KTKEG_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_048_TKEGV_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_049_KEGVV_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_050_EGVVH_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_051_GVVHG_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_052_VVHGV_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_053_VHGVA_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_054_HGVAT_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_055_GVATV_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_056_VATVA_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_057_ATVAE_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_058_TVAEK_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_059_VAEKT_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_060_AEKTK_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_061_EKTKE_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_062_KTKEQ_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_063_TKEQV_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_064_KEQVT_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_065_EQVTN_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_066_QVTNV_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_067_VTNVG_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_068_TNVGG_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_069_NVGGA_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_070_VGGAV_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_071_GGAVV_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_072_GAVVT_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_073_AVVTG_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_074_VVTGV_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_075_VTGVT_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_076_TGVTA_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_077_GVTAV_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_078_VTAVA_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_079_TAVAQ_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_080_AVAQK_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_081_VAQKT_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_082_AQKTV_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_083_QKTVE_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_084_KTVEG_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_085_TVEGA_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_086_VEGAG_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_087_EGAGS_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_088_GAGSI_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_089_AGSIA_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_090_GSIAA_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_091_SIAAA_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_092_IAAAT_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_093_AAATG_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_094_AATGF_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_095_ATGFV_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_096_TGFVK_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_097_GFVKK_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_098_FVKKD_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_099_VKKDQ_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_100_KKDQL_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_101_KDQLG_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_102_DQLGK_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_103_QLGKN_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_104_LGKNE_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_105_GKNEE_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_106_KNEEG_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_107_NEEGA_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_108_EEGAP_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_109_EGAPQ_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_110_GAPQE_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_111_APQEG_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_112_PQEGI_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_113_QEGIL_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_114_EGILE_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_115_GILED_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_116_ILEDM_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_117_LEDMP_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_118_EDMPV_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_119_DMPVD_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_120_MPVDP_8.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_121_PVDPD_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_122_VDPDN_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_123_DPDNE_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_124_PDNEA_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_125_DNEAY_7.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_126_NEAYE_3.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_127_EAYEM_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_128_AYEMP_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_129_YEMPS_0.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_130_EMPSE_5.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_131_MPSEE_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_132_PSEEG_4.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_133_SEEGY_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_134_EEGYQ_1.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_135_EGYQD_2.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_136_GYQDY_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_137_YQDYE_6.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_138_QDYEP_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_139_DYEPE_9.pdb', 'scan_simulations/new_cat_scan_asyn/htra1_scan_140_YEPEA_4.pdb']
-	for i in pdbs_to_check:
-		o = get_pose_discrimination_scores(i)
+	for n, i in enumerate(best_decoys):
+		o = get_pose_discrimination_scores(join(args.directory, basename(i['filename'])))
 
-		with open('dummy.txt', 'a') as w:
-			w.write('\t'.join([str(i) for i in o])+'\n')
+		#with open(args.name + '_discriminators.txt', 'a') as w:
+		#	if n == 0:
+		#		w.write('\t'.join(['name', 'prot_score', 'pep_score', 'cst_score', 'discriminator'])+'\n')			
+		#	w.write('\t'.join([str(i) for i in o])+'\n')
 
 if __name__ == '__main__':
 	args = parse_args()
 
-	opts = '-cst_fa_weight 1.0 -run:preserve_header -enzdes::cstfile {}'
+	opts = '-cst_fa_weight 1.0 -run:preserve_header -enzdes::cstfile {} -mute all'
 	init(opts.format(args.constraints))
 
 	main(args)

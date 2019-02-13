@@ -21,7 +21,7 @@ def apply_constraints(pose):
 	cg = CoordinateConstraintGenerator()
 	ors = OrResidueSelector()
 	ors.add_residue_selector(ChainSelector('A')) # Constrain main backbone
-	ors.add_residue_selector(ResidueIndexSelector('215-217')) # Preserving b-sheet templating
+	ors.add_residue_selector(ResidueIndexSelector('215-217')) # Preserving original peptide
 	cg.set_residue_selector(ors)
 
 	ac = AddConstraints()
@@ -30,8 +30,8 @@ def apply_constraints(pose):
 
 	return 
 
-opts = '-enzdes::cstfile htra1_protease.cst -run:preserve_header'
-opts += ' -pep_refine -ex1 -ex2 -use_input_sc -score:weights ref2015_cst'
+opts = '-enzdes::cstfile htra1_protease.cst -run:preserve_header -mute core'
+opts += ' -pep_refine -ex1 -ex2 -use_input_sc -flip_HNQ -no_optH false -score:weights ref2015_cst'
 init(opts)
 
 # Score function and starting PDB
@@ -44,8 +44,8 @@ apply_constraints(pose)
 # Creating FlexPepDock protocol using init options
 fpdock = FlexPepDockingProtocol()
 
-decoy_name = 'ext_cat_flexpep/htra1_protease_ext_subst_4'
-jd = PyJobDistributor(decoy_name, 40, sf)
+decoy_name = 'ext_cat_flexpep/htra1_protease_ext_subst_11'
+jd = PyJobDistributor(decoy_name, 100, sf)
 while not jd.job_complete:
 	pp = Pose()
 	pp.assign(pose)

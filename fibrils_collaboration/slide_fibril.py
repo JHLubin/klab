@@ -11,7 +11,6 @@ from os import makedirs
 from os.path import basename, isdir, isfile, join
 from pyrosetta import *
 from pyrosetta.rosetta.core.id import AtomID
-from pyrosetta.rosetta.core.kinematics import FoldTree
 from pyrosetta.rosetta.core.pack.task.operation import \
 	ExtraRotamers, IncludeCurrent, RestrictToRepacking
 from pyrosetta.rosetta.core.select.residue_selector import ChainSelector
@@ -123,6 +122,7 @@ def main(args):
 
 	# Initialize Rosetta
 	opts = '-cst_fa_weight 1.0 -run:preserve_header -enzdes::cstfile {}'
+	opts += ' -ex1 -ex2 -use_input_sc -flip_HNQ -no_optH false -cst_fa_weight 1.0'
 	init(opts.format(args.constraints))
 
 	# Score function and starting PDB
