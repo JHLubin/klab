@@ -173,10 +173,15 @@ def fix_file(pdb):
 	with open(pdb, 'r') as r:
 		lines = r.readlines()
 
-	if 'LINK' in lines[6]:
-		lines.pop(6)
-		lines.pop(6)
+	# remove LINK lines, which interfere with putting in constraints
+	lines_to_remove = []
+	for n, line in enumerate(lines):
+		if 'LINK' in line:
+			lines_to_remove.append(n)
+	for l2r in lines_to_remove:
+		lines[l2r] = '\n'
 
+	# Fixing enzdes comments block
 	for l in lines[2:6]:
 		lines[lines.index(l)]=l.replace('VAL',aa[last_res])
 
