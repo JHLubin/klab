@@ -1,7 +1,7 @@
 To Do
 	HCV
-		Rerun DVDAR, 3 colonies each for WT and F2R2, 3 technical repeats on one of the colonies
 		Develop quantitation procedure on 2D plots that use diagonal bin counts
+		Design around F2R2
 	Htra1
 		Order primers to put Htra1 and Htra1+PDZ into Ly104
 		Design around 90 (86-92)
@@ -21,6 +21,10 @@ To Do
 			Maybe re-backbone 87-91 loop
 	Lit
 		Check for papers using split HCV
+	Aliza's data
+		Replace directories in silent files (not uniform throughout file)
+		~/Rosetta/main/source/bin/extract_pdbs.linuxgccrelease -in::file::silent [silent_file]
+		~400GB if fully extracted and gzipped
 
 	Update design protocol
 		Extend to non-HCV
@@ -132,8 +136,6 @@ HTRA1
 	Why Poepsel plots show no bars or differences between F/S?
 
 RosettaCon
-	Write follow-up email for Grace Hopper/SACNAS
-
 	SimpleMetrics (Jared)
 	Boot Camp
 		Steven/Brian's talk-> Pull Requetiquette
@@ -160,13 +162,6 @@ RosettaCon
 	PLOGO 2013 Nature Methods--plogo.yukon.edu
 		Sequence plots (residue frequency)
 		Better representation of real specificity
-
-Paper review:
-	Jackhmmer to identify orthologs, CD-HIT to reduce redundancy
-	InterfaceAnalyzer
-	Bootstrapping -- Lasso logistic regression
-	L1-regularized Logistic regression models, ROC and precision recall curves
-	Used Kunkel mutagenesis
 
 Ideas
 	Htra1
@@ -280,3 +275,11 @@ Collect data on
 	For curating loops set, use code from Dali for alignment
 	Check at each step--look at PDB files to make sure what's being selected makes sense.
 	Test Manasi's sequences in pipeline, check for recognition.
+
+
+Paper review:
+	Jackhmmer to identify orthologs, CD-HIT to reduce redundancy
+	InterfaceAnalyzer
+	Bootstrapping -- Lasso logistic regression
+	L1-regularized Logistic regression models, ROC and precision recall curves
+	Used Kunkel mutagenesis
