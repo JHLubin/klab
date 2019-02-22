@@ -47,9 +47,6 @@ $ cat .gitignore
 !/protease_design/early_scripts/*.pml
 
 /protease_design/lab_results
-/protease_design/manasi_high_priority
-/protease_design/mhp_refine
-/protease_design/old_designs
 /protease_design/papers
 
 /protease_design/primer_sequences/*
@@ -57,9 +54,11 @@ $ cat .gitignore
 !/protease_design/primer_sequences/made_g-blocks.py
 !/protease_design/primer_sequences/Selections.xlsx
 
-protease_design/*.xls*
+/protease_design/simulation_results/*
+
+/protease_design/*.xls*
 !/protease_design/expt_seqs.xlsx
-protease_design/*.gcproj
+/protease_design/*.gcproj
 
 /protocols/*
 /pyrosetta4.27.rel187/*
