@@ -64,6 +64,9 @@ def parse_args():
 	parser.add_argument("-pep_only", "--design_only_peptide", 
 		action="store_true", help="Option to allow design only of the \
 		peptide, excluding the surrounding protease.")
+	parser.add_argument("-no_design", "--no_design", 
+		action="store_true", help="Option to just modify the peptide and \
+		protease to a desired sequence and relax.")
 	parser.add_argument("-hbn", "--use_hb_net", action="store_true", 
 		help="Option to include HBnet score term in design.")
 	parser.add_argument("-n", "--number_decoys", type=int, default=10, 
@@ -228,29 +231,38 @@ def select_residues(cat_res, peptide_subset, design_peptide=False,
 	"""
 	residue_selectors = {}
 
-	cats_as_str = ','.join([str(i) for i in cat_res]) # selector uses string, 
-	catalytic = ResidueIndexSelector(cats_as_str)	  # not list
+	# Catalytic residues. ResidueIndexSelector needs a string, not a list.
+	cats_as_str = ','.join([str(i) for i in cat_res]) 
+	catalytic = ResidueIndexSelector(cats_as_str)
 	residue_selectors['catalytic'] = catalytic
 
+	# Protease residues. Protease assumed to be chain A
 	protease = ChainSelector("A")
 	residue_selectors['protease'] = protease
 	
+	# Peptide residues. Peptide assumed to be chain B, unless range specified
 	if peptide_subset:
 		peptide = ResidueIndexSelector(peptide_subset)
 	else:
 		peptide = ChainSelector("B")
 	residue_selectors['peptide'] = peptide
 
+	# Designable residues. May include protease and peptide, just one, or none
 	if design_protease:
 		mutable = mutable_residues_selector(protease, peptide,
 			catalytic, design_peptide)
-	else:
+	elif design_peptide:
 		mutable = peptide
+	else: # Neither protease not peptide designable
+		mutable = selector_intersection(protease, peptide) # Empty set
 	residue_selectors['mutable'] = mutable
 
+	# Packable residues. Centered around the peptide and designable set
 	packable = packable_residues_selector(peptide, mutable, catalytic)
 	residue_selectors['packable'] = packable
 	
+	# Immobile residues. Catalytic residues and everything that isn't mutable 
+	# or packable
 	immobile = NotResidueSelector(selector_union(mutable, packable))
 	residue_selectors['immobile'] = immobile
 
@@ -316,7 +328,7 @@ def make_task_factory(residue_selectors, confine_design=None):
 	and the listed residues are limited in their design options to those AAs 
 	listed.
 	"""
-	design_set = residue_selectors['mutable']
+	mutable_set = residue_selectors['mutable']
 	repack_set = residue_selectors['packable']
 	immobile_set = residue_selectors['immobile']
 
@@ -346,7 +358,7 @@ def make_task_factory(residue_selectors, confine_design=None):
 		# Making residue selection excluding residues in the file and 
 		# restricting them to repacking
 		no_longer_designable = AndResidueSelector()
-		no_longer_designable.add_residue_selector(design_set)
+		no_longer_designable.add_residue_selector(mutable_set)
 		no_longer_designable.add_residue_selector(now_only_repack)
 		tf.push_back(OperateOnResidueSubset(repack, no_longer_designable))
 
@@ -473,10 +485,13 @@ def main(args):
 
 	# Making residue selectors
 	if args.design_only_peptide:
-		residue_selectors =select_residues(args.cat_res, args.pep_subset, 
+		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
 			design_peptide=True, design_protease=False)
-	else: 
-		residue_selectors =select_residues(args.cat_res, args.pep_subset, 
+	if args.no_design:
+		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
+			design_peptide=False, design_protease=False)
+	else: # If protease is designable, peptide can be designable or not
+		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
 			design_peptide=args.design_peptide)
 
 	# Creating score function, movemap, and taskfactory for design
@@ -485,7 +500,9 @@ def main(args):
 	tf = make_task_factory(residue_selectors, args.target_res_mutation_file)
 
 	# Running relax and design protocol
-	dec_name = join(dir_name, out_name + '_designed')
+	dec_name = join(dir_name, out_name)
+	if not args.no_design:
+		dec_name += '_designed'
 
 	if args.test_mode:
 		test_and_exit(args, residue_selectors, pose, dec_name)
