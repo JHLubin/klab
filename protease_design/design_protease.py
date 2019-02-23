@@ -411,7 +411,8 @@ def fastdesign(pose, score_function, movemap, taskfactory):
 	return pose
 
 
-def jd_design(name, decoy_count, pose, score_function, movemap, task_factory):
+def jd_design(name, decoy_count, pose, score_function, movemap, task_factory, 
+	do_design=True):
 	""" Runs job distributor with relax and design protocols """
 	print('\n')
 
@@ -422,15 +423,20 @@ def jd_design(name, decoy_count, pose, score_function, movemap, task_factory):
 		# Relaxing
 		print('Relaxing...')
 		pp = fastrelax(pp, score_function, movemap)
-		relax_name = jd.current_name.replace('designed', 'relaxed')
-		pp.dump_pdb(relax_name)
+		if not do_design:
+			print('Complete\n')
+			jd.output_decoy(pp)
 
-		# Doing design and outputting decoy
-		print('Designing...')
-		pp = fastdesign(pp, score_function, movemap, task_factory)	
+		else:
+			relax_name = jd.current_name.replace('designed', 'relaxed')
+			pp.dump_pdb(relax_name)
 
-		print('Complete\n')
-		jd.output_decoy(pp)
+			# Doing design and outputting decoy
+			print('Designing...')
+			pp = fastdesign(pp, score_function, movemap, task_factory)	
+
+			print('Complete\n')
+			jd.output_decoy(pp)
 
 	return
 
@@ -484,12 +490,14 @@ def main(args):
 	pose = apply_constraints(pose)
 
 	# Making residue selectors
+	design=True
 	if args.design_only_peptide:
 		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
 			design_peptide=True, design_protease=False)
 	if args.no_design:
 		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
 			design_peptide=False, design_protease=False)
+		design = False
 	else: # If protease is designable, peptide can be designable or not
 		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
 			design_peptide=args.design_peptide)
@@ -501,13 +509,13 @@ def main(args):
 
 	# Running relax and design protocol
 	dec_name = join(dir_name, out_name)
-	if not args.no_design:
+	if design:
 		dec_name += '_designed'
 
 	if args.test_mode:
 		test_and_exit(args, residue_selectors, pose, dec_name)
 
-	jd_design(dec_name, args.number_decoys, pose, sf, mm, tf)
+	jd_design(dec_name, args.number_decoys, pose, sf, mm, tf, do_design=design)
 
 
 if __name__ == '__main__':
