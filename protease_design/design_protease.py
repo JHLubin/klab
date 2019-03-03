@@ -423,20 +423,17 @@ def jd_design(name, decoy_count, pose, score_function, movemap, task_factory,
 		# Relaxing
 		print('Relaxing...')
 		pp = fastrelax(pp, score_function, movemap)
-		if not do_design:
-			print('Complete\n')
-			jd.output_decoy(pp)
 
-		else:
+		if do_design:
 			relax_name = jd.current_name.replace('designed', 'relaxed')
 			pp.dump_pdb(relax_name)
 
-			# Doing design and outputting decoy
-			print('Designing...')
-			pp = fastdesign(pp, score_function, movemap, task_factory)	
+		# Doing design and outputting decoy
+		print('Designing...')
+		pp = fastdesign(pp, score_function, movemap, task_factory)	
 
-			print('Complete\n')
-			jd.output_decoy(pp)
+		print('Complete\n')
+		jd.output_decoy(pp)
 
 	return
 
