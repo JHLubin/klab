@@ -31,6 +31,7 @@ from pyrosetta.rosetta.protocols.denovo_design.movers import FastDesign
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
 from pyrosetta.rosetta.protocols.relax import FastRelax
 from pyrosetta.teaching import SimpleThreadingMover
+from random import randint
 from sys import exit
 
 def parse_args():
@@ -117,6 +118,24 @@ def input_manual_mutations(pose, mutations):
 		mmover.apply(mutated_pose)
 
 	return mutated_pose
+
+
+def random_aa(length):
+	""" 
+	Returns a string of random 1-letter amino acid names from the cannonical 
+	20, to a specified length.
+	"""
+
+	aa_list = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 
+				'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
+	
+	aa_string = ""
+
+	for aa in range(length):
+		rand_index = randint(0,19)
+		aa_string += aa_list[rand_index]
+
+	return aa_string
 
 
 def thread_substrate(destination, name, pose, sequence, peptide_start):
@@ -481,8 +500,14 @@ def main(args):
 	if args.mutations: # Making manually input mutations
 		pose = input_manual_mutations(pose, args.mutations)
 	
+	# If the peptide is to be designed, starting with a random peptide sequence
+	if args.design_peptide:
+		seq_to_thread = random_aa(len(args.sequence))
+	else:
+		seq_to_thread = args.sequence
+
 	pose = thread_substrate(
-		dir_name, out_name, pose, args.sequence, args.subst_site)
+		dir_name, out_name, pose, seq_to_thread, args.subst_site)
 
 	pose = apply_constraints(pose)
 
