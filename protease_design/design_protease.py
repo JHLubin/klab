@@ -15,6 +15,7 @@ python design_protease.py -s HCV.pdb -od F2R2_des_pep -name LY104_F2R2_test_pep
 -seq DVDAR -site 198 -ps "198-202" -cons ly104.cst -nd 100 -mm 138 I -mm 170 Q  
 -mm 171 S -mm 173 I -mm 175 K -mm 183 R -pep_only
 """
+from __future__ import print_function # For compatability with Python 2.7
 import argparse
 from os import makedirs
 from os.path import basename, isdir, isfile, join
@@ -189,8 +190,8 @@ def mutable_residues_selector(protease_selection, peptide_selection,
 	first_shell_select = InterGroupInterfaceByVectorSelector()
 	first_shell_select.group1_selector(protease_selection) 
 	first_shell_select.group2_selector(peptide_selection) 
-	first_shell_select.nearby_atom_cut(6)
-	first_shell_select.vector_dist_cut(8)
+	first_shell_select.nearby_atom_cut(8)
+	first_shell_select.vector_dist_cut(10)
 
 	# Excluding the catalytic residues, peptide (if not designed)
 	not_cats_sel = NotResidueSelector(catalytic_selection)
@@ -218,8 +219,8 @@ def packable_residues_selector(
 	near_mutable = InterGroupInterfaceByVectorSelector()
 	near_mutable.group1_selector(not_mutable)
 	near_mutable.group2_selector(mutable_selection)
-	near_mutable.nearby_atom_cut(6)
-	near_mutable.vector_dist_cut(8)
+	near_mutable.nearby_atom_cut(8)
+	near_mutable.vector_dist_cut(10)
 
 	# Selecting residues near the peptide, with wider range for BB mobility
 	near_pep = InterGroupInterfaceByVectorSelector()
@@ -230,7 +231,7 @@ def packable_residues_selector(
 
 	# Combining selections for peptide and near peptide and near mutable
 	inclusive_packable = selector_union(
-		near_mutable, near_pep, peptide_selection)
+		near_mutable, near_pep, peptide_selection, ChainSelector('B')) ##################Chain B hacky
 	
 	# Setting up exclusion of catalytic and mutable residues
 	exclusive_packable = selector_intersection(
@@ -460,7 +461,7 @@ def jd_design(name, decoy_count, pose, score_function, movemap, task_factory,
 
 def test_and_exit(args, residue_selectors, pose, name):
 	""" Prints info then exits """
-	print('Args:')
+	print('\n\nArgs:')
 	print(args)
 	print('\nSelectors:')
 	for k, v in residue_selectors.items():
@@ -501,10 +502,12 @@ def main(args):
 		pose = input_manual_mutations(pose, args.mutations)
 	
 	# If the peptide is to be designed, starting with a random peptide sequence
-	if args.design_peptide:
+	if args.design_peptide or args.design_only_peptide: ############################# put new substrate in for every run?
 		seq_to_thread = random_aa(len(args.sequence))
+		design_peptide = True
 	else:
 		seq_to_thread = args.sequence
+		design_peptide = False
 
 	pose = thread_substrate(
 		dir_name, out_name, pose, seq_to_thread, args.subst_site)
@@ -513,16 +516,15 @@ def main(args):
 
 	# Making residue selectors
 	design=True
-	if args.design_only_peptide:
-		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
-			design_peptide=True, design_protease=False)
 	if args.no_design:
-		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
-			design_peptide=False, design_protease=False)
 		design = False
-	else: # If protease is designable, peptide can be designable or not
-		residue_selectors = select_residues(args.cat_res, args.pep_subset, 
-			design_peptide=args.design_peptide)
+
+	design_protease = True
+	if args.design_only_peptide or args.no_design:
+		design_protease=False
+
+	residue_selectors = select_residues(args.cat_res, args.pep_subset, 
+			design_peptide=design_peptide, design_protease=design_protease)
 
 	# Creating score function, movemap, and taskfactory for design
 	sf = get_score_function(constraints=True, hbnet=args.use_hb_net)
