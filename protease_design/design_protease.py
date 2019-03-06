@@ -495,8 +495,9 @@ def main(args):
 		# strip out .pdb or .pdb.gz extension
 		out_name = out_name.replace('.pdb', '').replace('.gz', '')	
 
-	# Preparing pose, with manual mutations, substrate threading, constraints
+	# Preparing pose, with constraints, manual mutations, substrate threading
 	pose = pose_from_pdb(args.start_struct)
+	pose = apply_constraints(pose)
 
 	if args.mutations: # Making manually input mutations
 		pose = input_manual_mutations(pose, args.mutations)
@@ -511,9 +512,6 @@ def main(args):
 
 	pose = thread_substrate(
 		dir_name, out_name, pose, seq_to_thread, args.subst_site)
-
-	pose = apply_constraints(pose)
-
 	# Making residue selectors
 	design=True
 	if args.no_design:
