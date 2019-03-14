@@ -12,6 +12,7 @@ $ cat .gitignore
 
 /fibrils_collaboration/*.pptx
 /fibrils_collaboration/grant_draft.docx
+/fibrils_collaboration/design_htra1_orig/*
 /fibrils_collaboration/ehrmann/*
 !/fibrils_collaboration/ehrmann/*.fasta
 !/fibrils_collaboration/ehrmann/*.py
@@ -47,6 +48,7 @@ $ cat .gitignore
 !/protease_design/early_scripts/*.pml
 
 /protease_design/lab_results
+/protease_design/ml_training
 /protease_design/papers
 
 /protease_design/primer_sequences/*
@@ -54,11 +56,11 @@ $ cat .gitignore
 !/protease_design/primer_sequences/made_g-blocks.py
 !/protease_design/primer_sequences/Selections.xlsx
 
-/protease_design/simulation_results/*
+/protease_design/simulation_results
 
-/protease_design/*.xls*
+protease_design/*.xls*
 !/protease_design/expt_seqs.xlsx
-/protease_design/*.gcproj
+protease_design/*.gcproj
 
 /protocols/*
 /pyrosetta4.27.rel187/*

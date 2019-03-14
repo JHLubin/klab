@@ -139,7 +139,7 @@ def random_aa(length):
 	return aa_string
 
 
-def thread_substrate(destination, name, pose, sequence, peptide_start):
+def thread_substrate(dest, name, pose, sequence, peptide_start, output=False):
 	"""
 	Creates a threaded PDB from a given destination, name, and sequence and 
 	returns a threaded pose. Requires peptide start site to know where to begin
@@ -153,11 +153,12 @@ def thread_substrate(destination, name, pose, sequence, peptide_start):
 	tm.apply(threaded_pose)
 
 	# Outputting threaded pose
-	threaded_out = '_'.join([name, 'threaded.pdb'])
-	pdb_name = join(destination, threaded_out)
-	threaded_pose.dump_pdb(pdb_name)
+	if output:
+		threaded_out = '_'.join([name, 'threaded.pdb'])
+		pdb_name = join(dest, threaded_out)
+		threaded_pose.dump_pdb(pdb_name)
+		print('Saved as {}'.format(pdb_name))
 
-	print('Saved as {}'.format(pdb_name))
 	return threaded_pose
 
 ######### Residue selection ##################################################
