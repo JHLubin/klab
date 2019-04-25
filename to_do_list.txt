@@ -1,4 +1,5 @@
 To Do
+	Design protocol--does selection with non-optimal threaded residues. Fix.
 	HCV
 		Develop quantitation procedure on 2D plots that use diagonal bin counts
 		Design around F2R2

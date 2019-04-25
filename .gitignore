@@ -38,6 +38,7 @@ $ cat .gitignore
 /MaxQuant/*
 /meetings/*
 /old_rosetta/*
+/ordering/*
 /onboarding_committee/*
 /other_misc/*
 /paper_review/*
@@ -64,8 +65,7 @@ protease_design/*.xls*
 protease_design/*.gcproj
 
 /protocols/*
-/pyrosetta4.27.rel187/*
-/pyrosetta4.36.u.rel195/*
+/pyrosetta*/*
 /python_class/*
 /rosetta/*
 /SACNAS/*

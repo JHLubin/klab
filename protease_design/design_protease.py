@@ -28,6 +28,8 @@ from pyrosetta.rosetta.core.scoring import ScoreType
 from pyrosetta.rosetta.core.select.residue_selector import \
 	AndResidueSelector, ChainSelector, InterGroupInterfaceByVectorSelector,\
 	NotResidueSelector, OrResidueSelector, ResidueIndexSelector
+from pyrosetta.rosetta.core.simple_metrics.metrics import \
+	SelectedResiduesMetric
 from pyrosetta.rosetta.protocols.denovo_design.movers import FastDesign
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
 from pyrosetta.rosetta.protocols.relax import FastRelax
@@ -52,8 +54,8 @@ def parse_args():
 		threading? (A 5-letter substitution ending with 201 should start at \
 		197).")
 	parser.add_argument("-cr", "--cat_res", type=int, nargs='+', 
-		default=[72, 96, 154], help="The catalytic residues of the protease, \
-		excluded from design (defaults are 72, 96, and 154, for HCV)")
+		default=None, help="The catalytic residues of the protease, \
+		excluded from design. (By default, no residues are so designated.)")
 	parser.add_argument("-ps", "--pep_subset", type=str, default=None, 
 		help='Select the subset of the peptide around which to design, as a \
 		string of "first_res-last_res". (Ex: "198-202") Otherwise, design \
@@ -252,11 +254,6 @@ def select_residues(cat_res, peptide_subset, design_peptide=False,
 	"""
 	residue_selectors = {}
 
-	# Catalytic residues. ResidueIndexSelector needs a string, not a list.
-	cats_as_str = ','.join([str(i) for i in cat_res]) 
-	catalytic = ResidueIndexSelector(cats_as_str)
-	residue_selectors['catalytic'] = catalytic
-
 	# Protease residues. Protease assumed to be chain A
 	protease = ChainSelector("A")
 	residue_selectors['protease'] = protease
@@ -268,6 +265,15 @@ def select_residues(cat_res, peptide_subset, design_peptide=False,
 		peptide = ChainSelector("B")
 	residue_selectors['peptide'] = peptide
 
+	# Catalytic residues. ResidueIndexSelector needs a string, not a list.
+	if cat_res:
+		cats_as_str = ','.join([str(i) for i in cat_res]) 
+		catalytic = ResidueIndexSelector(cats_as_str)
+	else:
+		# If no catalytic residues are given, return a null selector
+		catalytic = selector_intersection(protease, peptide) # Empty set
+	residue_selectors['catalytic'] = catalytic
+			
 	# Designable residues. May include protease and peptide, just one, or none
 	if design_protease:
 		mutable = mutable_residues_selector(protease, peptide,
@@ -292,11 +298,15 @@ def select_residues(cat_res, peptide_subset, design_peptide=False,
 
 def selector_to_list(pose, selector):
 	""" Converts a selector output vector to a list of selected residues """
-	selection_vector = selector.apply(pose)
-	selection_list = []
-	for i in range(len(selection_vector)): 
-		if selection_vector[i+1]==1:
-			selection_list.append(i+1)
+	# Set up SelectedResiduesMetric
+	srm = SelectedResiduesMetric()
+	srm.set_residue_selector(selector)
+	srm.set_output_in_rosetta_num(True)
+	
+	# Collect selection, and convert to a list
+	sel_res_str = srm.calculate(pose)
+	sel_res_str_list = sel_res_str.split(',')
+	selection_list = [int(i) for i in sel_res_str_list]
 
 	return selection_list 
 
@@ -393,13 +403,20 @@ def make_task_factory(residue_selectors, confine_design=None):
 	return tf
 
 
-def get_score_function(constraints=True, hbnet=False):
+def get_score_function(ref15=True, constraints=True, hbnet=False):
 	""" Returns either default or weighted REF2015 with or without hbnet """
+	# If including default REF2015, start from there, otherwise start from null
+	if ref15:
+		sf = get_fa_scorefxn()
+	else:
+		sf = ScoreFunction()
+
 	# Picking between constraints and not
 	if constraints:
-		sf = create_score_function('ref2015_cst')
-	else:
-		sf = create_score_function('ref2015')
+		sf.set_weight(ScoreType.atom_pair_constraint, 1)
+		sf.set_weight(ScoreType.coordinate_constraint, 1)
+		sf.set_weight(ScoreType.angle_constraint, 1)
+		sf.set_weight(ScoreType.dihedral_constraint, 1)
 
 	# Optionally adding in hbnet
 	if hbnet:
