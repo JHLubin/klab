@@ -1,0 +1,46 @@
+61 65 88 89 114 
+5-EU, 5-AmU
+Y65AG, ?F89?
+5-AMU, Azide-C3-Uridin, Diazirine-Uridine, Cyclopropene-Uridine
+
+packable
+60,62-64,66-67,81-87,90-91,94,112-113,115-117,119,134-139,174
+
+/home/skhare/Generate_ligens_example
+
+README:
+"""
+Steps to generate rotamer ensemble
+
+1. Start from your ligand PDB (of one conformation). Generate .mol file using PyMol or babel or any other program. Set M ROOT <atomno> in .mol file.
+
+2. Use Ian's molfile_to_params.py from mini/src/python/apps/public to generate initial params file. Save the LG_0001.pdb or equivalent file it generates. If using this for unnatural aa rotamers, make a copy of the params file and edit the new params file to make it like a ligand (remove all references to protein, replace TYPE to LIGAND, so on, and delete last four lines in the ICOORD section that he marks out as default). use this param file for steps 3 onward. When done add "PDB_ROTAMERS rotlib_file_name" to the amino-acid param file, and it should work.
+
+3. Edit params file to add  a line starting with PROTON_CHI after each CHI you want to vary. e.g. PROTON_CHI 5 SAMPLES 10 -70 -80 -90 -100 -110 70 80 90 100 110 EXTRA 0
+   I usually specify every angle value explicitly and "EXTRA 0". This is not really a PROTON_CHI but is labeled as such to trick rosetta to make the ensemble. Leave or comment out the "real" PROTON_CHI lines depending on whether you want the protons to vary in your ensemble. See LGmod.params for example (starting .params file is LG.params)
+
+4. Run the executable example_commandline.sh (~khare/mini_hack_ligrot/bin/generate_ligens.linuxiccrelease @genconf.flags -in:file::s LG_0001.pdb). Play around with -enzdes::rot_ensemble_ecutoff value in genconf.flags and re-run so that conformers you generate look reasonable.
+
+5. The rotamer ensemble will be LG1.rotlib.pdb (<your lig name>.rotlib.pdb). Conformations have their fa_intra_rep energy in the REMARK preceding them and are separated by ENDMDL to allow movie-visualization in PyMol. Change ENDMDL to TER for actual use.
+
+6. See example.log for a sample run (./example_commandline.sh). Files used are LG_0001.pdb, LGmod.params, and genconf.flags
+
+Note 1:  Make sure the M ROOT is set  to the desired atom in the .mol file (this will determine how the torsions will move -- eg. in a torsion at1-at2-at3-at4 both at1 and at4 can in principle move, root will determine how the torsions are defined in the .params file and, therefore, which of at1 and at4 moves).
+
+Note 2: Remember not to use the modified .params file for your regular runs. Use the one you started with.
+"""
+
+Saved starting monomers as mol2 files with PyMOL
+cdkl; conda activate py2
+python rosetta/Rosetta/main/source/scripts/python/public/molfile_to_params.py -n LG1 --chain B --root {whatever atom is C8} -p uck2_collaboration/params/{ligand} uck2_collaboration/ligands/{ligand}.mol2
+
+python rosetta/Rosetta/main/source/scripts/python/public/molfile_to_params.py -n LG1 --chain B --root 18 -p uck2_collaboration/cyclo uck2_collaboration/ligands/cyclo.mol2
+
+Copied params files for backup, edited with PROTON_CHI lines
+Commented out the lines for the torsions within the molecule, only want the side chain
+Description of those lines at https://www.rosettacommons.org/node/10021
+Decreasing bins based on chi number to keep rotamer count reasonable. Started 20 degrees for chi_1, 30 for chi_2, 45 for chi_3, 60 for chi_4 and beyond. Exception: amide bonds had 180. No extra lines needed for 5eu and m5c.
+Had to also change BOND_TYPE to BOND to accommodate older Rosetta version
+
+Copied everything into $kl1/home/jhl133/uck2_collab
+for i in 5amu 5cpu 5dzu 5eu c35amu cyclo m5c; do /home/skhare/Generate_ligens_example/generate_ligens.linuxiccrelease @/home/skhare/Generate_ligens_example/genconf.flags -in:file::s $i.pdb -extra_res_fa $i.params; mv LG1.rotlib.pdb $i.rotlib.pdb; done

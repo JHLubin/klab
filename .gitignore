@@ -73,7 +73,12 @@ protease_design/*.gcproj
 /software_CCDC/*
 
 /uck2_collaboration/*.pptx
+/uck2_collaboration/early_params_conformers/*
 /uck2_collaboration/images/*
+/uck2_collaboration/params/*.pdb
+/uck2_collaboration/params/original/*
+/uck2_collaboration/relax_protein/*
+/uck2_collaboration/test_relax/*
 
 /UMSAP/*
 
