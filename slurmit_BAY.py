@@ -96,8 +96,8 @@ def validate(args):
 				raise ArgError('You have created an array submission without putting %a in the --outfiles parameter.')
 			if (args.log != '') and ('%a' not in args.log):
 				raise ArgError('You have created an array submission without putting %a in the --log parameter.')
-			if (args.err != '') and ('%a' not in args.err):
-				raise ArgError('You have created an array submission without putting %a in the --err parameter.')
+			#if (args.err != '') and ('%a' not in args.err):
+			#	raise ArgError('You have created an array submission without putting %a in the --err parameter.')
 			
 			#If we are using numeric arrays only, make sure $job is in --command.		
 			if args.arraygen == None and "$job" not in args.command:
@@ -213,7 +213,7 @@ def main(argv):
 	
 	#Print the script to screen.
 	for line in slurm_script:
-		print(line, end=' ')
+		print(line)
 		
 	#Make a filename from the jobname, and then write the script.
 	scriptname = 'tmp_' + args.job + '.sh'
