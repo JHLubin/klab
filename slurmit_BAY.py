@@ -96,12 +96,12 @@ def validate(args):
 				raise ArgError('You have created an array submission without putting %a in the --outfiles parameter.')
 			if (args.log != '') and ('%a' not in args.log):
 				raise ArgError('You have created an array submission without putting %a in the --log parameter.')
-			#if (args.err != '') and ('%a' not in args.err):
-			#	raise ArgError('You have created an array submission without putting %a in the --err parameter.')
+			if (args.err != '') and ('%a' not in args.err):
+				raise ArgError('You have created an array submission without putting %a in the --err parameter.')
 			
 			#If we are using numeric arrays only, make sure $job is in --command.		
-			if args.arraygen == None and "$job" not in args.command:
-				raise ArgError("You have created a numeric array submission (ie. without --arraygen) without putting '$job' in the --command parameter.")
+			#if args.arraygen == None and "$job" not in args.command:
+			#	raise ArgError("You have created a numeric array submission (ie. without --arraygen) without putting '$job' in the --command parameter.")
 				
 			#If we are using file-based arrays, make sure $file is in --command.
 			if args.arraygen != None and "$file" not in args.command:
