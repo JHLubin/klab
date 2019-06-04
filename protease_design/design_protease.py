@@ -11,9 +11,9 @@ enzdes constraint comments at the beginning of the document, and that the
 protease is chain A and the substrate is chain B.
 
 Sample command:
-python design_protease.py -s HCV.pdb -od F2R2_des_pep -name LY104_F2R2_test_pep  
--seq DVDAR -site 198 -ps "198-202" -cons ly104.cst -nd 100 -mm 138 I -mm 170 Q  
--mm 171 S -mm 173 I -mm 175 K -mm 183 R -pep_only
+python design_protease.py -s HCV.pdb -od test -name despep -seq DVDAR -site 198 
+-ps "198-202" -cons ly104.cst -cr 72 96 154 -dprot 0 -dpep 1 -n 100 -mm 138 I 
+-mm 170 Q -mm 171 S -mm 173 I -mm 175 K -mm 183 R
 """
 from __future__ import print_function # For compatability with Python 2.7
 import argparse
@@ -27,11 +27,13 @@ from pyrosetta.rosetta.core.pack.task.operation import \
 from pyrosetta.rosetta.core.scoring import ScoreType
 from pyrosetta.rosetta.core.select.residue_selector import \
 	AndResidueSelector, ChainSelector, InterGroupInterfaceByVectorSelector,\
-	NotResidueSelector, OrResidueSelector, ResidueIndexSelector
+	NeighborhoodResidueSelector, NotResidueSelector, OrResidueSelector, \
+	ResidueIndexSelector
 from pyrosetta.rosetta.core.simple_metrics.metrics import \
 	SelectedResiduesMetric
 from pyrosetta.rosetta.protocols.denovo_design.movers import FastDesign
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
+from pyrosetta.rosetta.protocols.minimization_packing import PackRotamersMover
 from pyrosetta.rosetta.protocols.relax import FastRelax
 from pyrosetta.teaching import SimpleThreadingMover
 from random import randint
@@ -59,18 +61,16 @@ def parse_args():
 	parser.add_argument("-ps", "--pep_subset", type=str, default=None, 
 		help='Select the subset of the peptide around which to design, as a \
 		string of "first_res-last_res". (Ex: "198-202") Otherwise, design \
-		will be performed around the full peptide. Both options that include \
-		peptide design will only design the subset.')
+		will be performed around the full peptide. These numbers should be in \
+		pose numbers, not PDB numbers, if the two differ.')
 	parser.add_argument("-cons", "--constraints", type=str, 
 		default='ly104.cst', help="Pick constraints file")
-	parser.add_argument("-des_pep", "--design_peptide", action="store_true", 
-		help="Option to allow design on the regognition region of the peptide.")
-	parser.add_argument("-pep_only", "--design_only_peptide", 
-		action="store_true", help="Option to allow design only of the \
-		peptide, excluding the surrounding protease.")
-	parser.add_argument("-no_design", "--no_design", 
-		action="store_true", help="Option to just modify the peptide and \
-		protease to a desired sequence and relax.")
+	parser.add_argument("-dprot", "--design_protease", type=str2bool, default=1, 
+		choices=[0, 1], help="Allow design on the protease near the peptide? 0 \
+		for False, 1 for True. (Default: True)")
+	parser.add_argument("-dpep", "--design_peptide", type=str2bool, default=0,
+		choices=[0, 1], help="Allow design on the peptide? 0 for False, 1 for \
+		True. (Default: False)")
 	parser.add_argument("-hbn", "--use_hb_net", action="store_true", 
 		help="Option to include HBnet score term in design.")
 	parser.add_argument("-n", "--number_decoys", type=int, default=10, 
@@ -80,21 +80,43 @@ def parse_args():
 		Accepts multiple uses. (Ex: -mm 138 I -mm 183 R) Note, if you intend \
 		to change the catalytic residues, you must edit the PDB's enzdes \
 		comments as well, or applying constraints won't work properly.")
-	parser.add_argument("-trmf", "--target_res_mutation_file", type=str, 
-		default=None, help="File of format: 'res_number    design_options' \
-		to specify further design restrictions. Useful when picking between \
-		identified favorable mutations.")
+	parser.add_argument("-init", "--extra_init_options", type=str, 
+		action='append', help='Extra init options for Rosetta (ex: \
+		"-extra_res_fa LG1.params")')
+	parser.add_argument("-nrc", "--no_relax_comparison", action="store_true",
+		help="Prevent generation of a relaxed decoy along with the designed \
+		model. By default, one will be produced, but this option will prevent \
+		that from happening. Doing so may save time if many trajectories are \
+		being run, and a smaller set of relaxed models is generated for \
+		comparison. This can be done by executing the same command, but with \
+		-dprot 0 and -dpep 0")
 	parser.add_argument("-test", "--test_mode", action="store_true", 
 		help="For debugging: test protocol, exiting before generating decoys.")
 	args = parser.parse_args()
 	return args
 
 
-def init_opts(cst_file='ly104.cst'):
+def str2bool(v):
+	""" Converts a number of potential string inputs to boolean """
+	if isinstance(v, bool):
+		return v
+	if v.lower() in ('yes', 'true', 't', 'y', '1'):
+		return True
+	elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+		return False
+	else:
+		raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+def init_opts(extra_opts, cst_file='ly104.cst'):
 	""" Produces a list of init options for PyRosetta, including cst file """
 	ros_opts = '-ex1 -ex2  -use_input_sc -flip_HNQ'
 	ros_opts += ' -mute all -enzdes::cstfile {}'.format(cst_file)
 	ros_opts += ' -cst_fa_weight 1.0 -run:preserve_header -out:pdb_gz'
+	if extra_opts:
+		for i in extra_opts:
+			ros_opts += ' {}'.format(i)
+	print(ros_opts)
 	return ros_opts
 
 
@@ -107,18 +129,74 @@ def readfile(file_name):
 
 ######### Threading ##########################################################
 
-def input_manual_mutations(pose, mutations):
+def make_residue_changes(pose, sf, subst_seq, subst_start, cat_res, manual_muts):
 	"""
-	Allows the manual input of specific mutations into a starting pose
-	Takes input pose and a list of mutations, with each mutation as a two-item
-	list, [site, single-letter residue name].
+	Applies substrate sequence changes and manual mutations to a given pose.
+	This is done through repacking, so unlike SimpleThreadingMover, the side 
+	chains don't begin clashing. This means that the residue selectors will be 
+	more accurate, and that design can begin without an initial relax step.
+
+	pose is a Rosetta pose
+	sf is a Rosetta scorefunction
+	subst_seq is a string (doesn't need to be uppercase)
+	subst_start is an integer corresponding to the first of a contiguous block 
+		of  residues to re-sequence
+	manual_muts is a list of two-member lists, of the following form: 
+		[site, single-letter residue name]
 	"""
+	# Create dict of {res: AA} for changes to make
+	res_changes = {}
+
+	# Add manual mutations list
+	if manual_muts:
+		print("\nApplying point substitutions:")
+		for m in manual_muts:
+			res_changes[int(m[0])] = m[1].upper()
+			print(m[0], m[1].upper())
+
+	# Add substrate threading to list of res changes
+	print("\nInserting substrate sequence:\n{}".format(subst_seq))
+	subst_range = range(subst_start, subst_start + len(subst_seq))
+	for n, i in enumerate(subst_range):
+		res_changes[i] = subst_seq[n].upper()
+
+	# Make TaskFactory to input changes
+	mobile_residues = OrResidueSelector() # Keep list of mobile residues
+	tf = TaskFactory()
+
+	# Force packing to target residue for each desired change
+	for r, aa in res_changes.items():
+		res_selection = ResidueIndexSelector(str(r))
+		restriction = RestrictAbsentCanonicalAASRLT()
+		restriction.aas_to_keep(aa.upper())
+		tf.push_back(OperateOnResidueSubset(restriction,res_selection))
+		mobile_residues.add_residue_selector(res_selection)
+
+	# Repack nearby residues to accommodate substitutions
+	shell = NeighborhoodResidueSelector()
+	shell.set_focus_selector(mobile_residues)
+	shell.set_include_focus_in_subset(False)
+	shell.set_distance(8)
+	
+	# Exclude catalytic residues 
+	if cat_res:
+		catalytic = ResidueIndexSelector(','.join([str(i) for i in cat_res]))
+		not_catalytic = NotResidueSelector(catalytic)
+		shell = selector_intersection(shell, not_catalytic)
+	
+	restrict = RestrictToRepackingRLT()
+	tf.push_back(OperateOnResidueSubset(restrict, shell))
+	
+	# Prevent repacking of all other residues
+	unchanging = NotResidueSelector(OrResidueSelector(mobile_residues, shell))
+	prevent = PreventRepackingRLT()
+	tf.push_back(OperateOnResidueSubset(prevent, unchanging))
+
+	# Apply changes with PackRotamersMover
+	pt = tf.create_task_and_apply_taskoperations(pose)
+	prm = PackRotamersMover(sf, pt)
 	mutated_pose = Pose(pose)
-	print('\nInputting {} mutations:'.format(str(len(mutations))))
-	for m in mutations:
-		print('\t{}{}{}'.format(pose.residue(int(m[0])).name1(), m[0], m[1]))
-		mmover = SimpleThreadingMover(m[1].upper(), int(m[0]))
-		mmover.apply(mutated_pose)
+	prm.apply(mutated_pose)
 
 	return mutated_pose
 
@@ -139,29 +217,6 @@ def random_aa(length):
 		aa_string += aa_list[rand_index]
 
 	return aa_string
-
-
-def thread_substrate(dest, name, pose, sequence, peptide_start, output=False):
-	"""
-	Creates a threaded PDB from a given destination, name, and sequence and 
-	returns a threaded pose. Requires peptide start site to know where to begin
-	threading.
-	"""
-	print('\nThreading {} at site {}'.format(sequence, str(peptide_start)))
-
-	# Making threaded pose
-	threaded_pose = Pose(pose)
-	tm = SimpleThreadingMover(sequence.upper(), peptide_start)
-	tm.apply(threaded_pose)
-
-	# Outputting threaded pose
-	if output:
-		threaded_out = '_'.join([name, 'threaded.pdb'])
-		pdb_name = join(dest, threaded_out)
-		threaded_pose.dump_pdb(pdb_name)
-		print('Saved as {}'.format(pdb_name))
-
-	return threaded_pose
 
 ######### Residue selection ##################################################
 
@@ -243,8 +298,8 @@ def packable_residues_selector(
 	return exclusive_packable
 
 
-def select_residues(cat_res, peptide_subset, design_peptide=False, 
-	design_protease=True):
+def select_residues( 
+	cat_res, peptide_subset, design_protease=True, design_peptide=False):
 	""" 
 	Makes residue selectors for protease sections. Requires manual input for 
 	which residues are catalytic and whether only part of the peptide should be 
@@ -306,6 +361,8 @@ def selector_to_list(pose, selector):
 	# Collect selection, and convert to a list
 	sel_res_str = srm.calculate(pose)
 	sel_res_str_list = sel_res_str.split(',')
+	if sel_res_str_list == ['']: # Avoid errors when list is empty
+		sel_res_str_list = []
 	selection_list = [int(i) for i in sel_res_str_list]
 
 	return selection_list 
@@ -343,21 +400,11 @@ def make_move_map(pose, selectors):
 	return mm
 
 
-def make_task_factory(residue_selectors, confine_design=None):
+def make_task_factory(residue_selectors):
 	""" 
 	Makes a TaskFactory with operations that leave the mutable residues 
 	designable, restricts the nearby residues to repacking, and prevents 
 	repacking of other residues.
-
-	Also includes the ability to take in a target residue mutatations text 
-	file in the form:
-	res_number 		allowed_AAs
-	for example:
-	138 			KR
-
-	All designable residues not listed in the file are restricted to repacking
-	and the listed residues are limited in their design options to those AAs 
-	listed.
 	"""
 	mutable_set = residue_selectors['mutable']
 	repack_set = residue_selectors['packable']
@@ -373,32 +420,6 @@ def make_task_factory(residue_selectors, confine_design=None):
 	tf.push_back(OperateOnResidueSubset(prevent, immobile_set))
 	tf.push_back(OperateOnResidueSubset(repack, repack_set))
 	# Everything else left designable by default
-
-	# Restricting design further
-	if confine_design:
-		trms = readfile(confine_design)
-		# Converting lines to a dict
-		limited_set = \
-			{int(line.split()[0]):line.split()[1] for line in trms}
-
-		# Converting residues in the dict to a selector
-		res_concatenated = str(list(limited_set.keys())).strip('[]').replace(' ','')
-		small_des_set = ResidueIndexSelector(res_concatenated)
-		now_only_repack = NotResidueSelector(small_des_set)
-
-		# Making residue selection excluding residues in the file and 
-		# restricting them to repacking
-		no_longer_designable = AndResidueSelector()
-		no_longer_designable.add_residue_selector(mutable_set)
-		no_longer_designable.add_residue_selector(now_only_repack)
-		tf.push_back(OperateOnResidueSubset(repack, no_longer_designable))
-
-		# Limiting design on residues in the file
-		for res, AAs in list(limited_set.items()):
-			designable_res = ResidueIndexSelector(str(res))
-			restrict_AAs = RestrictAbsentCanonicalAASRLT()
-			restrict_AAs.aas_to_keep(AAs)
-			tf.push_back(OperateOnResidueSubset(restrict_AAs, designable_res))
 
 	return tf
 
@@ -426,51 +447,48 @@ def get_score_function(ref15=True, constraints=True, hbnet=False):
 
 ######### Design Protocols ###################################################
 
-def fastrelax(pose, score_function, movemap):
+def fastrelax(pose, score_function, movemap, taskfactory=None):
 	""" 
 	Runs the FastRelax protocol on a pose, using given score function and 
-	movemap
+	movemap, and optionally a task factory. By default, FastRelax will not do 
+	design. However, given a task factory that enables design, it functions 
+	like FastDesign.
 	"""
 	relax = FastRelax()
 	relax.set_scorefxn(score_function)
 	relax.set_movemap(movemap)
+	if taskfactory:
+		relax.set_task_factory(taskfactory)
 
-	relax.apply(pose)
-	return pose
+	pp = Pose(pose)
+	relax.apply(pp)
 
-
-def fastdesign(pose, score_function, movemap, taskfactory):
-	fd = FastDesign()
-	fd.set_scorefxn(score_function)
-	fd.set_movemap(movemap)
-	fd.set_task_factory(taskfactory)
-
-	fd.apply(pose)
-	return pose
+	return pp
 
 
 def jd_design(name, decoy_count, pose, score_function, movemap, task_factory, 
-	do_design=True):
+	save_wt=True):
 	""" Runs job distributor with relax and design protocols """
 	print('\n')
 
+	current_decoy = 1
 	jd = PyJobDistributor(name, decoy_count, score_function)
 	while not jd.job_complete:
 		pp = Pose(pose)
 
-		# Relaxing
-		print('Relaxing...')
-		pp = fastrelax(pp, score_function, movemap)
-
-		if do_design:
+		# Relaxing to provide a WT comparison to design
+		if save_wt:
+			print('Relaxing...')
 			relax_name = jd.current_name.replace('designed', 'relaxed')
-			pp.dump_pdb(relax_name)
+			relaxed_pose = fastrelax(pp, score_function, movemap)
+			relaxed_pose.dump_pdb(relax_name)
 
 		# Doing design and outputting decoy
 		print('Designing...')
-		pp = fastdesign(pp, score_function, movemap, task_factory)	
+		pp = fastrelax(pp, score_function, movemap, taskfactory=task_factory)
 
-		print('Complete\n')
+		print('Decoy {}/{} complete\n'.format(current_decoy, decoy_count))
+		current_decoy += 1
 		jd.output_decoy(pp)
 
 	return
@@ -490,13 +508,14 @@ def test_and_exit(args, residue_selectors, pose, name):
 	print('\nName:')
 	print(name)
 	print('\n')
+	pose.dump_pdb(name.replace('designed', 'test.pdb'))
 
 	exit()
 
 
 def main(args):
 	# Initializing PyRosetta
-	ros_opts = init_opts(cst_file=args.constraints)
+	ros_opts = init_opts(args.extra_init_options, cst_file=args.constraints)
 	init(options=ros_opts)
 
 	# Destination folder for PDB files
@@ -511,51 +530,43 @@ def main(args):
 	else:
 		out_name = basename(args.start_struct)
 		# strip out .pdb or .pdb.gz extension
-		out_name = out_name.replace('.pdb', '').replace('.gz', '')	
+		out_name = out_name.replace('.pdb', '').replace('.gz', '')
+
+	# Getting score function
+	sf = get_score_function(constraints=True, hbnet=args.use_hb_net)	
 
 	# Preparing pose, with constraints, manual mutations, substrate threading
 	pose = pose_from_pdb(args.start_struct)
 	pose = apply_constraints(pose)
 
-	if args.mutations: # Making manually input mutations
-		pose = input_manual_mutations(pose, args.mutations)
-	
-	# If the peptide is to be designed, starting with a random peptide sequence
-	if args.design_peptide or args.design_only_peptide: ############################# put new substrate in for every run?
-		seq_to_thread = random_aa(len(args.sequence))
-		design_peptide = True
-	else:
-		seq_to_thread = args.sequence
-		design_peptide = False
+	pose = make_residue_changes(pose, sf, args.sequence, 
+		args.subst_site, args.cat_res, args.mutations)
 
-	pose = thread_substrate(
-		dir_name, out_name, pose, seq_to_thread, args.subst_site)
 	# Making residue selectors
-	design=True
-	if args.no_design:
-		design = False
-
-	design_protease = True
-	if args.design_only_peptide or args.no_design:
-		design_protease=False
-
 	residue_selectors = select_residues(args.cat_res, args.pep_subset, 
-			design_peptide=design_peptide, design_protease=design_protease)
+		design_protease=args.design_protease, 
+		design_peptide=args.design_peptide)
 
-	# Creating score function, movemap, and taskfactory for design
-	sf = get_score_function(constraints=True, hbnet=args.use_hb_net)
+	# Creating movemap, and taskfactory for design
 	mm = make_move_map(pose, residue_selectors)
-	tf = make_task_factory(residue_selectors, args.target_res_mutation_file)
+	tf = make_task_factory(residue_selectors)
 
 	# Running relax and design protocol
 	dec_name = join(dir_name, out_name)
-	if design:
+	if args.design_protease or args.design_peptide:
 		dec_name += '_designed'
+	else: 
+		dec_name += '_relaxed'
+
+	save_wt = False
+	if args.design_protease or args.design_peptide:
+		if not args.no_relax_comparison:
+			save_wt = True
 
 	if args.test_mode:
 		test_and_exit(args, residue_selectors, pose, dec_name)
 
-	jd_design(dec_name, args.number_decoys, pose, sf, mm, tf, do_design=design)
+	jd_design(dec_name, args.number_decoys, pose, sf, mm, tf, save_wt=save_wt)
 
 
 if __name__ == '__main__':
