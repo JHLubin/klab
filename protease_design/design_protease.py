@@ -31,11 +31,9 @@ from pyrosetta.rosetta.core.select.residue_selector import \
 	ResidueIndexSelector
 from pyrosetta.rosetta.core.simple_metrics.metrics import \
 	SelectedResiduesMetric
-from pyrosetta.rosetta.protocols.denovo_design.movers import FastDesign
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
 from pyrosetta.rosetta.protocols.minimization_packing import PackRotamersMover
 from pyrosetta.rosetta.protocols.relax import FastRelax
-from pyrosetta.teaching import SimpleThreadingMover
 from random import randint
 from sys import exit
 
@@ -66,10 +64,10 @@ def parse_args():
 	parser.add_argument("-cons", "--constraints", type=str, 
 		default='ly104.cst', help="Pick constraints file")
 	parser.add_argument("-dprot", "--design_protease", type=str2bool, default=1, 
-		choices=[0, 1], help="Allow design on the protease near the peptide? 0 \
+		help="Allow design on the protease near the peptide? 0 \
 		for False, 1 for True. (Default: True)")
 	parser.add_argument("-dpep", "--design_peptide", type=str2bool, default=0,
-		choices=[0, 1], help="Allow design on the peptide? 0 for False, 1 for \
+		help="Allow design on the peptide? 0 for False, 1 for \
 		True. (Default: False)")
 	parser.add_argument("-hbn", "--use_hb_net", action="store_true", 
 		help="Option to include HBnet score term in design.")
