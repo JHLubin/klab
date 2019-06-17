@@ -21,6 +21,7 @@ $ cat .gitignore
 /fibrils_collaboration/ext_cat_flexpep/*
 /fibrils_collaboration/ext_cat_tau_slide/*
 /fibrils_collaboration/htra1_asyn_design/*
+/fibrils_collaboration/notes/*
 /fibrils_collaboration/papers/*
 /fibrils_collaboration/relax/*
 !/fibrils_collaboration/relax/*.py
@@ -34,6 +35,10 @@ $ cat .gitignore
 /loop_swap_protocol/calibrate_CCDEndsGraftMover/*
 /loop_swap_protocol/serine_proteases/*/
 /loop_swap_protocol/serine_proteases/view_all.pse
+
+/machine_learning/full_set/*
+/machine_learning/*.csv
+/machine_learning/interaction_graph_summary.txt
 
 /MaxQuant/*
 /meetings/*
@@ -57,9 +62,7 @@ $ cat .gitignore
 !/protease_design/primer_sequences/hcv.fasta
 !/protease_design/primer_sequences/made_g-blocks.py
 !/protease_design/primer_sequences/Selections.xlsx
-
 /protease_design/simulation_results
-
 protease_design/*.xls*
 !/protease_design/expt_seqs.xlsx
 protease_design/*.gcproj
