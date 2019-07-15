@@ -564,7 +564,9 @@ def main(args):
 	if args.test_mode:
 		test_and_exit(args, residue_selectors, pose, dec_name)
 
-	jd_design(dec_name, args.number_decoys, pose, sf, mm, tf, save_wt=save_wt)
+	#jd_design(dec_name, args.number_decoys, pose, sf, mm, tf, save_wt=save_wt)
+	relaxed_pose = fastrelax(pose, sf, mm)
+	io.poses_to_silent(relaxed_pose, 'test/trial')
 
 
 if __name__ == '__main__':

@@ -1,0 +1,20 @@
+
+CST::BEGIN
+ TEMPLATE:: ATOM_MAP: 1 atom_name: SG CB CA
+ TEMPLATE:: ATOM_MAP: 1 residue3: CYS
+
+ TEMPLATE:: ATOM_MAP: 2 atom_name: C CA O
+ TEMPLATE:: ATOM_MAP: 2 residue3: GLN
+
+ CONSTRAINT:: distanceAB: 2.5 0.2 100. 1 0
+ CONSTRAINT:: angle_A: 115.2 10.0 10.0 360.0 1
+ CONSTRAINT:: angle_B: 80.7 10.0 10.0 360.0 1
+ CONSTRAINT:: torsion_A: -88.516 20.0 10.0 360.0 1
+ CONSTRAINT:: torsion_AB:  -148.145 20.0 10.0 360.0 3
+ CONSTRAINT:: torsion_B: 76.108 20.0 10.0 360.0 1
+
+ ALGORITHM_INFO:: match_positions
+ ALGORITHM_INFO::END
+CST::END
+
+
