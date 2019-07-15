@@ -31,6 +31,8 @@ from pyrosetta.rosetta.core.select.residue_selector import \
 	ResidueIndexSelector
 from pyrosetta.rosetta.core.simple_metrics.metrics import \
 	SelectedResiduesMetric
+from pyrosetta.rosetta.protocols.constraint_generator import \
+	AddConstraints, CoordinateConstraintGenerator
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
 from pyrosetta.rosetta.protocols.minimization_packing import PackRotamersMover
 from pyrosetta.rosetta.protocols.relax import FastRelax
@@ -78,6 +80,9 @@ def parse_args():
 		Accepts multiple uses. (Ex: -mm 138 I -mm 183 R) Note, if you intend \
 		to change the catalytic residues, you must edit the PDB's enzdes \
 		comments as well, or applying constraints won't work properly.")
+	parser.add_argument("-cp", "--constrain_peptide", action="store_true",
+		help="Option to add coordinate constraints to the substrate peptide \
+		backbone atoms. False by default.")
 	parser.add_argument("-init", "--extra_init_options", type=str, 
 		action='append', help='Extra init options for Rosetta (ex: \
 		"-extra_res_fa LG1.params")')
@@ -90,6 +95,8 @@ def parse_args():
 		-dprot 0 and -dpep 0")
 	parser.add_argument("-test", "--test_mode", action="store_true", 
 		help="For debugging: test protocol, exiting before generating decoys.")
+	parser.add_argument("-v", "--verbose", action="store_true", 
+		help="For debugging: Don't mute Rosetta output.")
 	args = parser.parse_args()
 	return args
 
@@ -106,11 +113,15 @@ def str2bool(v):
 		raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
-def init_opts(extra_opts, cst_file='ly104.cst'):
+def init_opts(extra_opts, cst_file='ly104.cst', verbose=False):
 	""" Produces a list of init options for PyRosetta, including cst file """
 	ros_opts = '-ex1 -ex2  -use_input_sc -flip_HNQ'
-	ros_opts += ' -mute all -enzdes::cstfile {}'.format(cst_file)
+	ros_opts += ' -enzdes::cstfile {}'.format(cst_file)
 	ros_opts += ' -cst_fa_weight 1.0 -run:preserve_header -out:pdb_gz'
+
+	if not verbose:
+		ros_opts += ' -mute all'
+
 	if extra_opts:
 		for i in extra_opts:
 			ros_opts += ' {}'.format(i)
@@ -375,6 +386,17 @@ def apply_constraints(pose):
 	return pose
 
 
+def coord_constrain_peptide(pose, selection=ChainSelector('B')):
+	""" Applies backbone coordinate constraints to a selection of a pose """
+	cg = CoordinateConstraintGenerator()
+	if selection:
+		cg.set_residue_selector(selection)
+	ac = AddConstraints()
+	ac.add_generator(cg)
+	ac.apply(pose)
+	return pose
+
+
 def make_move_map(pose, selectors):
 	""" 
 	Makes a movemap for a protease-peptide system, with all non-peptide 
@@ -493,10 +515,12 @@ def jd_design(name, decoy_count, pose, score_function, movemap, task_factory,
 
 ######### Main ###############################################################
 
-def test_and_exit(args, residue_selectors, pose, name):
+def test_and_exit(args, opts, residue_selectors, pose, name):
 	""" Prints info then exits """
 	print('\n\nArgs:')
 	print(args)
+	print('\nRosetta options:')
+	print(opts)
 	print('\nSelectors:')
 	for k, v in residue_selectors.items():
 		print('\t',k)
@@ -513,7 +537,8 @@ def test_and_exit(args, residue_selectors, pose, name):
 
 def main(args):
 	# Initializing PyRosetta
-	ros_opts = init_opts(args.extra_init_options, cst_file=args.constraints)
+	ros_opts = init_opts(args.extra_init_options, cst_file=args.constraints,
+		verbose=args.verbose)
 	init(options=ros_opts)
 
 	# Destination folder for PDB files
@@ -536,6 +561,8 @@ def main(args):
 	# Preparing pose, with constraints, manual mutations, substrate threading
 	pose = pose_from_pdb(args.start_struct)
 	pose = apply_constraints(pose)
+	if args.constrain_peptide:
+		pose = coord_constrain_peptide(pose)
 
 	pose = make_residue_changes(pose, sf, args.sequence, 
 		args.subst_site, args.cat_res, args.mutations)
@@ -562,11 +589,11 @@ def main(args):
 			save_wt = True
 
 	if args.test_mode:
-		test_and_exit(args, residue_selectors, pose, dec_name)
+		test_and_exit(args, ros_opts, residue_selectors, pose, dec_name)
 
-	#jd_design(dec_name, args.number_decoys, pose, sf, mm, tf, save_wt=save_wt)
-	relaxed_pose = fastrelax(pose, sf, mm)
-	io.poses_to_silent(relaxed_pose, 'test/trial')
+	jd_design(dec_name, args.number_decoys, pose, sf, mm, tf, save_wt=save_wt)
+	#relaxed_pose = fastrelax(pose, sf, mm)
+	#io.poses_to_silent(relaxed_pose, 'test/trial')
 
 
 if __name__ == '__main__':
