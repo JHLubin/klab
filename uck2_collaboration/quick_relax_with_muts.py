@@ -72,7 +72,7 @@ pose = pose_from_pdb(filnam)
 ac.apply(pose)
 minmov.apply(pose)
 
-jnam = 'uck2_collaboration/check_muts/{}_{}{}'.format(args.ligand, *args.mutant[0])
+jnam = '/scratch/jhl133/uck2_collaboration/check_muts/{}_{}{}'.format(args.ligand, *args.mutant[0])
 jd = PyJobDistributor(jnam, args.n, sf)
 while not jd.job_complete:
 	pp = Pose(pose)
