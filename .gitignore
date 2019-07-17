@@ -70,18 +70,18 @@ protease_design/*.gcproj
 /protocols/*
 /pyrosetta*/*
 /python_class/*
-/rosetta/*
+/rosetta*/*
 /SACNAS/*
 /STEMcosR/*
 /software_CCDC/*
+/tools-master/*
 
-/uck2_collaboration/*.pptx
-/uck2_collaboration/early_params_conformers/*
+/uck2_collaboration/early_files/*
 /uck2_collaboration/images/*
-/uck2_collaboration/params/*.pdb
+/uck2_collaboration/ligands/mol2/*
 /uck2_collaboration/params/original/*
-/uck2_collaboration/relax_protein/*
-/uck2_collaboration/test_relax/*
+/uck2_collaboration/params/pdbs/*
+/uck2_collaboration/simulation_results/*
 
 /UMSAP/*
 

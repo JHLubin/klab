@@ -1,7 +1,12 @@
 61 65 88 89 114 
 5-EU, 5-AmU
-Y65AG, ?F89?
+Y65AFGLSV, ?F89?
+Y65 priority G (A), uridine, 5amu, 5eu, (c35, cyclo, dzu)
 5-AMU, Azide-C3-Uridin, Diazirine-Uridine, Cyclopropene-Uridine
+
+mutable:
+PDB:  61 65 88 89 114 
+Pose: 35 39 62 63 88
 
 packable
 60,62-64,66-67,81-87,90-91,94,112-113,115-117,119,134-139,174
@@ -39,8 +44,37 @@ python rosetta/Rosetta/main/source/scripts/python/public/molfile_to_params.py -n
 Copied params files for backup, edited with PROTON_CHI lines
 Commented out the lines for the torsions within the molecule, only want the side chain
 Description of those lines at https://www.rosettacommons.org/node/10021
-Decreasing bins based on chi number to keep rotamer count reasonable. Started 20 degrees for chi_1, 30 for chi_2, 45 for chi_3, 60 for chi_4 and beyond. Exception: amide bonds had 180. No extra lines needed for 5eu and m5c.
+Decreasing bins based on chi number to keep rotamer count reasonable. Started 20 degrees for chi_1, 30 for chi_2, 45 for chi_3, 60 for chi_4 and beyond. Exception: amide bonds had 180. No extra lines needed for 5eu and m5c. Found that Rosetta limits to 5000 conformers, so adjusted to fit.
 Had to also change BOND_TYPE to BOND to accommodate older Rosetta version
 
 Copied everything into $kl1/home/jhl133/uck2_collab
 for i in 5amu 5cpu 5dzu 5eu c35amu cyclo m5c; do /home/skhare/Generate_ligens_example/generate_ligens.linuxiccrelease @/home/skhare/Generate_ligens_example/genconf.flags -in:file::s $i.pdb -extra_res_fa $i.params; mv LG1.rotlib.pdb $i.rotlib.pdb; done
+
+Making cytidine molecules
+Downloaded PDB with cytidine, pair fit aro ring to uridine template, delete everything else, bond, save as cytidine template after relabeling atoms
+Open existing ligands, select removal, n. C1+C2+C3+C4+C5+C6+C7+C8+C9+O1+O2+O3+O4+O5+O6+H1+H2+H3+H4+H5+H6+H7+H8+H9+H10+H11+N1+N2
+Removed all atoms, then opened cytidine template and created/bonded side groups.
+Renamed nitrogens to accommodate one extra
+Ran same params generation as above
+Modified params file with same lines in uridine versions
+Several had the numbering jumbled up in generating params... Adjusted PROTON_CHI lines appropriately
+
+Starting models made with enzyme and ligand PDB generated with params file--atom names sometimes change when generating the params, so don't use the original ligand molecule.
+
+Test relaxing to make sure everything works right
+	5cpu
+
+
+To do:
+	Design 6A shell around ligands
+		Starting from: 
+			WT
+			Single-mutant
+			Double-mutant
+		Minimize before repacking (before starting FastRelax)
+		Tabulate changes in designs
+			Rank order
+			List of substitutions
+	Screen tolerant sites around pocket for other substrates--relax with CST on, score difference
+	Phosphorylated cytidines beter than uridine--compare relax energies
+	
