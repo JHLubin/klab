@@ -55,7 +55,7 @@ if args.mutant:
 	# Keep exclusion list of mutated residues
 	not_mutated = NotResidueSelector()
 	# If a mutations are input, force packing only to target residues
-	for i in args.mutant:
+	for i in args.mutant.split():
 		res_selection = ResidueIndexSelector(str(i[0]))
 		restriction = RestrictAbsentCanonicalAASRLT()
 		restriction.aas_to_keep(i[1].upper())
