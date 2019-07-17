@@ -11,11 +11,11 @@ def parse_args():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("directory", type=str, 
 		help="Read fasc files from what directory?")
-	parser.add_argument("-z", "--zipped", action="store_true", default=False,
-		help="Add .gz suffix to decoys?")
-	parser.add_argument("-kf", "--keep_folder", action="store_true", 
-		default=False, help="Keep the folder name of the decoy? (By default, \
-		only the basename will appear.)")
+	#parser.add_argument("-z", "--zipped", action="store_true", default=False,
+	#	help="Add .gz suffix to decoys?")
+	#parser.add_argument("-kf", "--keep_folder", action="store_true", 
+	#	default=False, help="Keep the folder name of the decoy? (By default, \
+	#	only the basename will appear.)")
 	args = parser.parse_args()
 	return args
 
@@ -67,6 +67,7 @@ def main():
 	folder_search = join(folder, "*.fasc")
 	fasc_files = glob(folder_search)
 	fasc_files.sort()
+
 	# Prevent self-reference if re-running
 	for n, i in enumerate(fasc_files):
 		if 'combined_reports' in i:
@@ -80,7 +81,6 @@ def main():
 		# Reading in individual FASC file
 		with open(f, 'r') as read:
 			f_lines = read.readlines()
-			f_lines.pop(0) # First line is not useful
 			lines_data = []
 			for i in f_lines:
 				if ' mutations:' in i: # Specific to design_protease
@@ -90,36 +90,35 @@ def main():
 					line_data = scores_section[1::2] + prot_mutations_section
 				else:
 					scores_section = i.split()
+					for j in '{}":,':
+						scores_section = [x.replace(j,"") for x in scores_section]
 					line_data = scores_section[1::2]
 
 				if i == f_lines[0] and f == fasc_files[0]:
 					headline = scores_section[::2]
 					mut_section_ind = int(len(scores_section) / 2 + 1) # Specific to design_protease
 
-				lines_data.append(text_to_numbers(line_data))
+				#lines_data.append(text_to_numbers(line_data))
+				lines_data.append(line_data)
 
 			lines_data.sort(key=lambda x: x[1]) # Sorting by total score
 			report_lines += lines_data
 
 	# Making combined report
-	report_name = join(folder, base_name + '_combined_reports.fasc')
+	report_name = join(folder, base_name + '_combined_reports.csv')
 
 	with open(report_name, 'w') as r:
-		# Making template and header
-		head_length = len(headline)
-		template = '{:50}' + '{:25}' * (head_length - 1)
-		r.write(template.format(*headline) + '\n')
+		# Making header
+		r.write(', '.join(headline) + '\n')
 
 		# Adding in lines
 		cleanup_mutations_section(report_lines, mut_section_ind)
 		for line in report_lines:
-			if not args.keep_folder: # Stripping decoy name to base
-				line[0] = basename(line[0])
-			if args.zipped: # Adding zip suffix if that option is used
-				line[0] += '.gz'
-			line_out = template.format(*line[:head_length])
-			line_out += '   '.join(line[head_length + 1:])
-			r.write(line_out + '\n')
+			#if not args.keep_folder: # Stripping decoy name to base
+			#	line[0] = basename(line[0])
+			#if args.zipped: # Adding zip suffix if that option is used
+			#	line[0] += '.gz'
+			r.write(', '.join(line) + '\n')
 
 		print(report_name)
 

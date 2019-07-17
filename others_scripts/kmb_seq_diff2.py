@@ -6,14 +6,14 @@ from pymol import cmd
 # main function called from within PyMOL
 def seq_diff(obj1, obj2, doColor=False, doColor2=False):
     if cmd.count_atoms(obj1+' and name CA') == 0:
-        print '%s is empty' % obj1
+        print('%s is empty' % obj1)
         return
     if cmd.count_atoms(obj2+' and name CA') == 0:
-        print '%s is empty' % obj2
+        print('%s is empty' % obj2)
         return
 
     if cmd.count_atoms(obj1+' and name CA') != cmd.count_atoms(obj2+' and name CA'):
-        print 'Selections have different number of residues.'
+        print('Selections have different number of residues.')
         return
 
     stored.resn1, stored.resn2 = [], []
@@ -47,7 +47,7 @@ def seq_diff(obj1, obj2, doColor=False, doColor2=False):
             reg_selection.append('%s and resi %s and chain %s' % (obj1, i1, c1))
 
     if mutant_selection == '':
-        print 'No mutations found'
+        print('No mutations found')
         #raise CmdException
 
     total_selection = ''

@@ -416,3 +416,25 @@ pep_seq = b.calculate(pose)
 for pdb in pdbs:
 p = pose_from_pdb(pdb)
 print(pdb, b.calculate(p)[1:6])
+
+
+from pyrosetta.rosetta.protocols.minimization_packing import PackRotamersMover
+tf=TaskFactory()
+# Modify task factory
+sf=get_fa_scorefxn()
+pt=tf.create_packer_task(pose)
+prm=PackRotamersMover(sf, pt)
+prm.apply(pose)
+
+io.poses_to_silent(relaxed_pose, 'test/trial')
+
+from pyrosetta.rosetta.core.scoring import CA_rmsd
+
+from pyrosetta.rosetta.core.simple_metrics.metrics import SequenceMetric
+cha = ChainSelector('A')
+a = SequenceMetric(cha)
+pose=pose_from_pdb('../../cat_relaxed.pdb')
+a.calculate(pose)
+a.set_use_three_letter_code(True)
+a.calculate(pose)
+a.set_use_three_letter_code(False)
