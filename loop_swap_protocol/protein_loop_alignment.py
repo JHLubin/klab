@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from pyrosetta import *
 from pyrosetta.rosetta.core.scoring.dssp import Dssp
+from pyrosetta.rosetta.protocols.simple_moves import SuperimposeMover
 from math import sqrt
 
 init()
@@ -63,3 +64,20 @@ def b_blocks(secstruct):
 	If a single residue is considered a loop between sheet residues, it is 
 	treated as part of the sheet. 
 	"""
+
+def align_proteins(pose_1, pose_2):
+	""" 
+	Aligns two proteins usinf the Superimpose mover. The second protein will be 
+	aligned to the first. Accommodates proteins of different sizes by aligning 
+	only the number of residues in the smaller protein. This assumes that the 
+	difference between the sizes is much smaller than the total number of 
+	residues in each.
+	"""
+	# Determining the size of the smaller pose
+	min_length = min(pose_1.total_residue(), pose_2.total_residue())
+
+	# Creating mover from start to the smaller end, aligning with all BB atoms
+	sim = SuperimposeMover(pose_1, min_length, 190, min_length, 190, False)
+
+	sim.apply(pose_2)
+	return
