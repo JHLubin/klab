@@ -55,13 +55,12 @@ if args.mutant:
 	# Keep exclusion list of mutated residues
 	not_mutated = NotResidueSelector()
 	# If a mutations are input, force packing only to target residues
-	for i in args.mutant.split():
-		res_selection = ResidueIndexSelector(str(i[0]))
-		restriction = RestrictAbsentCanonicalAASRLT()
-		restriction.aas_to_keep(i[1].upper())
-		tf.push_back(OperateOnResidueSubset(restriction, res_selection))
-		unmutated = NotResidueSelector(res_selection)
-		tf.push_back(OperateOnResidueSubset(RestrictToRepackingRLT(), unmutated))
+	res_selection = ResidueIndexSelector(str(args.mutant[0]))
+	restriction = RestrictAbsentCanonicalAASRLT()
+	restriction.aas_to_keep(args.mutant[1].upper())
+	tf.push_back(OperateOnResidueSubset(restriction, res_selection))
+	unmutated = NotResidueSelector(res_selection)
+	tf.push_back(OperateOnResidueSubset(RestrictToRepackingRLT(), unmutated))
 else:
 	tf.push_back(RestrictToRepacking)
 
