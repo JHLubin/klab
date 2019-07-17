@@ -90,7 +90,7 @@ def main(args):
 	if args.name: 
 		file_name = args.name
 	else:
-		file_name = basename(args.pdb_file).replace('.pdb', 'relaxed')
+		file_name = basename(args.pdb_file).replace('.pdb', '_relaxed')
 
 	out_name = join(dir_name, file_name)
 
