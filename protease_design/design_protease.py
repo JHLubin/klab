@@ -10,10 +10,15 @@ It is assumed in the program that the input PDB structure will have a set of
 enzdes constraint comments at the beginning of the document, and that the 
 protease is chain A and the substrate is chain B.
 
-Sample command:
+Sample commands:
 python design_protease.py -s HCV.pdb -od test -name despep -seq DVDAR -site 198 
 -ps "198-202" -cons ly104.cst -cr 72 96 154 -dprot 0 -dpep 1 -n 100 -mm 138 I 
 -mm 170 Q -mm 171 S -mm 173 I -mm 175 K -mm 183 R
+
+python protease_design/design_protease.py  -name htra1_protease_asyn92 
+-s fibrils_collaboration/htra1_protease_p6-2p.pdb -seq SIAAATGF 
+-od fibrils_collaboration/relax_protease_on_92 -site 212 -cr 61 91 169 
+-cons fibrils_collaboration/htra1_protease.cst -n 10 -dprot 0 -dpep 0
 """
 from __future__ import print_function # For compatability with Python 2.7
 import argparse
@@ -560,9 +565,9 @@ def main(args):
 
 	# Preparing pose, with constraints, manual mutations, substrate threading
 	pose = pose_from_pdb(args.start_struct)
-	pose = apply_constraints(pose)
 	if args.constrain_peptide:
 		pose = coord_constrain_peptide(pose)
+	pose = apply_constraints(pose)
 
 	pose = make_residue_changes(pose, sf, args.sequence, 
 		args.subst_site, args.cat_res, args.mutations)

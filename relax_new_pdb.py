@@ -36,6 +36,8 @@ def parse_args():
 		help="List residues that should be immobile, separated by spaces")
 	parser.add_argument('-cst', "--constraints", default=None,
 		help="If constraints are to be applied, specify the file")
+	parser.add_argument('-lig', "--ligand", default=None,
+		help="If there is a ligand, specify the params file")
 	parser.add_argument('-ccw', "--coord_wt", type=float, default=None,
 		help="Specify the coordinate constraints weight (Default: 1.0)")
 	parser.add_argument('-edw', "--enzdes_wt", type=float, default=None,
@@ -114,6 +116,8 @@ if __name__ == '__main__':
 	opts = '-ex1 -ex2 -use_input_sc -flip_HNQ -no_optH false -cst_fa_weight 1.0'
 	if args.constraints:
 		opts += ' -enzdes::cstfile {} -run:preserve_header'.format(args.constraints)
+	if args.ligand:
+		opts += ' -extra_res_fa {}'.format(args.ligand)
 	init(opts)
 	
 	main(args)
