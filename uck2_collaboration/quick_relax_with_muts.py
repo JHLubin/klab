@@ -21,6 +21,7 @@ parser.add_argument('--ligand', help='Which ligand?')
 parser.add_argument('--mutant', nargs=2, 
 	help='site residue (res 65 is 39 in pose)')
 parser.add_argument('--n', type=int, help='How many decoys?')
+parser.add_argument('--od', type=str, help='Output directory?')
 args = parser.parse_args()
 
 opts = '-use_input_sc -ex1 -ex2 -ignore_zero_occupancy false \
@@ -75,7 +76,7 @@ minmov.apply(pose)
 # Collect RMSD info in pose
 rmm = RMSDMetric(pose)
 
-jnam = '/scratch/jhl133/uck2_collaboration/check_muts/{}_{}{}'.format(args.ligand, *args.mutant)
+jnam = '{}/{}_{}{}'.format(args.od, args.ligand, *args.mutant)
 jd = PyJobDistributor(jnam, args.n, sf)
 while not jd.job_complete:
 	pp = Pose(pose)
