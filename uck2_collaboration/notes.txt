@@ -61,8 +61,7 @@ Several had the numbering jumbled up in generating params... Adjusted PROTON_CHI
 
 Starting models made with enzyme and ligand PDB generated with params file--atom names sometimes change when generating the params, so don't use the original ligand molecule.
 
-Test relaxing to make sure everything works right
-	5cpu
+record rosetta version for paper
 
 
 To do:
@@ -76,5 +75,5 @@ To do:
 			Rank order
 			List of substitutions
 	Screen tolerant sites around pocket for other substrates--relax with CST on, score difference
-	Phosphorylated cytidines beter than uridine--compare relax energies
+	Phosphorylates cytidines beter than uridines--compare relax energies
 	

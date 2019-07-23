@@ -10,6 +10,7 @@ from pyrosetta.rosetta.core.pack.task.operation import \
 from pyrosetta.rosetta.core.scoring import ScoreType
 from pyrosetta.rosetta.core.select.residue_selector import \
 	ResidueIndexSelector, NotResidueSelector, OrResidueSelector
+from pyrosetta.rosetta.core.simple_metrics.metrics import RMSDMetric
 from pyrosetta.rosetta.protocols.constraint_generator import \
 	AddConstraints, CoordinateConstraintGenerator
 from pyrosetta.rosetta.protocols.minimization_packing import MinMover
@@ -30,7 +31,7 @@ init(opts)
 # Create score function
 sf=create_score_function('ref2015_cst')
 	# Upweight coordinate constraint because clashes are so bad
-sf.set_weight(ScoreType.coordinate_constraint, 2) 
+#sf.set_weight(ScoreType.coordinate_constraint, 2) 
 
 # Make coordinate constraints mover
 cg = CoordinateConstraintGenerator()
@@ -71,9 +72,13 @@ pose = pose_from_pdb(filnam)
 ac.apply(pose)
 minmov.apply(pose)
 
-jnam = '/scratch/jhl133/uck2_collaboration/check_muts/{}_{}{}'.format(args.ligand, *args.mutant[0])
+# Collect RMSD info in pose
+rmm = RMSDMetric(pose)
+
+jnam = '/scratch/jhl133/uck2_collaboration/check_muts/{}_{}{}'.format(args.ligand, *args.mutant)
 jd = PyJobDistributor(jnam, args.n, sf)
 while not jd.job_complete:
 	pp = Pose(pose)
 	fr.apply(pp)
+	rmm.apply(pp)
 	jd.output_decoy(pp)
