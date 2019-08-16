@@ -1,2 +1,2 @@
 #!/bin/bash
-for f in 5amu 5cpu 5dzu 5eu c35amu cyclo m5c; do com="python early_design_script.py ${f} \${job}"; python ../slurmit_BAY.py --job "${f}" --partition main --tasks 1 --requeue True --usearray True --array 1-25 --time 2:00:00 --begin now --outfiles fixed_designs/logs/${f}_job%a --command "$com"; done 
+odir=/scratch/jhl133/uck2_collaboration/designing_enzyme/all_ala; mkdir -p $odir/logs; for ba in c u; do for va in 5am 5cp 5dz 5e c35am cyclo m5 wt ; do for j in {1..10..1} ; do jobname=$va$ba-$j; com="python early_design_script.py  -od $odir -l $va$ba -n 10 -x \${jobname} -ala"; python slurmit_BAY.py --job "${jobname}" --partition main --tasks 1 --requeue True --time 3-00:00:00 --begin now --outfiles $odir/logs/${job}_job%a --command "$com"; done; done; done
