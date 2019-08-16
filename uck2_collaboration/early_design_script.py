@@ -52,21 +52,9 @@ for i in [15,33,143,148]:
 	mm.set_chi(i, False)
 minmov.movemap(mm)
 
-if args.all_ala:
-	# Task factory for pre-alanine
-	prevent = PreventRepackingRLT() # No repack, no design
-	repack = RestrictToRepackingRLT() # No design
-
-	tf_alla = TaskFactory()
-	restriction = RestrictAbsentCanonicalAASRLT()
-	restriction.aas_to_keep('A')
-	tf_alla.push_back(OperateOnResidueSubset(restriction, mutable_res))
-	tf_alla.push_back(OperateOnResidueSubset(repack, packable_res))
-	tf_alla.push_back(OperateOnResidueSubset(repack, ligand))
-	tf_alla.push_back(OperateOnResidueSubset(prevent, static_res))
-
-
 # Task factory for FastRelax
+prevent = PreventRepackingRLT() # No repack, no design
+repack = RestrictToRepackingRLT() # No design
 tf_fr = TaskFactory()
 tf_fr.push_back(IncludeCurrent())
 tf_fr.push_back(ExtraRotamers(0, 1, 1))
@@ -74,6 +62,16 @@ tf_fr.push_back(ExtraRotamers(0, 2, 1))
 tf_fr.push_back(OperateOnResidueSubset(repack, packable_res))
 tf_fr.push_back(OperateOnResidueSubset(repack, ligand))
 tf_fr.push_back(OperateOnResidueSubset(prevent, static_res))
+
+if args.all_ala:
+	# Task factory for pre-alanine
+	tf_alla = TaskFactory()
+	restriction = RestrictAbsentCanonicalAASRLT()
+	restriction.aas_to_keep('A')
+	tf_alla.push_back(OperateOnResidueSubset(restriction, mutable_res))
+	tf_alla.push_back(OperateOnResidueSubset(repack, packable_res))
+	tf_alla.push_back(OperateOnResidueSubset(repack, ligand))
+	tf_alla.push_back(OperateOnResidueSubset(prevent, static_res))
 
 # Set up FastRelax
 fr = FastRelax()
