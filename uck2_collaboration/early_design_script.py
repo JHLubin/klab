@@ -42,7 +42,7 @@ static_res = NotResidueSelector(mobile_res)
 # Make minimization mover, applied before FastRelax
 sf = get_fa_scorefxn()
 minmov = MinMover()
-minmov.set_scorefxn(sf)
+minmov.score_function(sf)
 minmov.min_type('lbfgs_armijo_nonmonotone')
 	# Movemap will allow minimization of side chains only
 mm = MoveMap()
@@ -91,7 +91,7 @@ if args.all_ala:
 	prm.apply(pose)
 minmov.apply(pose)
 
-jnam = '{}/{}_designed_0{}'.format(ar'-od', gs.outdir, args.ligand, args.extend)
+jnam = '{}/{}_designed_0{}'.format(args.outdir, args.ligand, args.extend)
 jd = PyJobDistributor(jnam, args.num_jobs, sf)
 while not jd.job_complete:
 	pp = Pose(pose)
