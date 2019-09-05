@@ -31,6 +31,7 @@ $ cat .gitignore
 !/fibrils_collaboration/scan_simulations/*.py
 
 /images/*
+/lab_results/*
 
 /loop_swap_protocol/calibrate_CCDEndsGraftMover/*
 /loop_swap_protocol/serine_proteases/*/
