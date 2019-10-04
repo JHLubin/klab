@@ -1,0 +1,55 @@
+Ours
+	tev
+	ppv
+	sbmv
+Voigt 2016 
+	TEV
+	TVMV
+	SuMMV
+
+sequ align
+check is one loop particularly different?
+
+start just sequence, then compare tvmv and tev structures as validation
+
+specificity determining residues (SRD's) based on sequence alignment
+	read up
+	run that analysis
+
+Trypsin:
+	Catalytic: H57, D102, S195
+	34-41: 		loop A
+	59-64: 		loop B
+	70-71: 		loop E
+	91-101: 	loop C
+	141-155:	loop D
+	162-178: 	loop 3
+	184-194: 	loop 1
+	217-225: 	loop 2
+
+TEV:
+	Catalytic: H46, D81, C151
+	25-28: 		loop A
+	47-54: 		loop B
+	57-63: 		loop E
+	77-80: 		loop C
+	117-120:	loop D
+	125-138: 	loop 3
+	142-150: 	loop 1
+	171-176: 	loop 2	
+	C-term b-finger that contacts substrate (181-221-ter)
+
+psi-dali?
+	Download dali, iterate searches 
+	PDB90 of TEV, then of each hit (~100)
+	z-score threshold 2.5
+	Dali aligns--see about how
+
+20190917
+	Ran Dali online for TEV PDB (modified 1LVM). 
+	Downloaded PDB90 set, 114 aligned PDB files as 0000_master_pdb.pdb
+	Saved alignments as 0000_seq_align.txt
+	Loaded TEV into PyMOL, and 0000_master_pdb
+		Removed all heteroatoms
+		Pruned down other PDBs to chain(s) that aligned with TEV
+		Changed chain to A for single remaining chain proteins
