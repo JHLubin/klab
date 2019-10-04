@@ -130,3 +130,47 @@ Noticed that I didn't have residue 89 mutable, but they'd tested it. Also should
 Add repack to res 94 (Pose 68).
 Stop design on 29, 63, 72, 82, 173, 175, 185, 188 because artifacts/catalytic, and 30, 76, 77, 79, 80, 84, 136, 181, 192 because no mutations anyway
 New mutable list: 65,68,73,79,81,83,88,89,112,117,137,138,166,170,176,184,189
+158 unique sequences
+
+WT had many changes in 166-189... seems like this whole area is junk from a specificity standpoint. F81Y seems a popular artifact, and Y112W.
+For meaningful changes, Y65 and F89 were indeed the sites of the most noteworthy substitutions, consistent with your previous work. 
+Upon closer review, many of the substitutions Rosetta suggested (residues 166-189) were related to changes around the part of the substrate opposite the side chain. These occurred for wild type cytidine and uridine. While changes to this region might be considered for attempts to favor uridines or cytidines, I did not see them affecting the side chain. Since I also did not see any that seemed fvorable for catalysis, I ignored them.
+Larger side chains did not converge, even if sequence did. In come cases, top two models had different substrate conformers. For the best designs, I would hope to see a large energy difference favoring a single conformation over all others, while a flatter energy landscape for different conformations suggests that we haven't gotten there quite yet.
+Since all significant mutations are to the same set of residues, and they're not making substantial improvements for these substrates, I get the impression that this structure isn't especially designable as it is. For next steps, we can consider structural changes.
+5am
+	 	Y65A + F89Y replaces H-bond to D62 but makes more space
+		Y65S instead of A sometimes
+		Possibly F83H
+		Possibly Y112W or perhaps I, V (Y112W should be suspect, since it did occur in WT case)
+		Designs
+			
+5cp
+	 	Y65A is still popular, with some instances of G (no S)
+		F89N is now more popular than F89Y, based on the placement of the side chain 
+		Y112W correlates with F89N, while Y112T (some V) is most common with F89Y, based on the same side chain placement
+		Other side chain conformations produce changes at residue F83 (A, N, G)
+5dz 	
+		Again, while sequences have converged, ligand structure has not.
+		Y65A and G, and in most cases, F89Y
+		F83G and A. These changes are to reduce clashes. H also seen.
+		Y112W was more prominent than I or A
+5e 	
+		Almost convergence, as expected for immobile side chain
+		Y65G, F89Y, Y112W
+c35am
+	 	Y65G and Y65A, and F89Y most favored
+		F83 did not always change, but H and G were most favorable
+		Y112W was favored over T, though the residue was mutated in all cases
+cyclo
+	 	Due to the bulkiness of the side chain, A and G were most favored at Y65 and F89, though F89Y did also happen
+		In some cases, even F83 became a small residue to open space
+		Y112W was prevalent, with some I
+		These substrates were the only ones to see mutation L68A, which occurred for certain side chain orientations
+m5 		
+		Complete convergence, as expected for immobile side chain
+		Y65A, F89Y, Y112W
+
+
+10/2/19 meeting
+May want phosphate back in model for designs
+Make models with just selected substitutions for a sanity check
