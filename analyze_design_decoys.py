@@ -25,6 +25,12 @@ def parse_args():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-f", "--folder", type=str, required=True, 
 		help="Pick folder to check")
+	parser.add_argument("-pre", "--prefix", type=str,  
+		help="If folder includes a mix of files, analyze only the subset with \
+		names starting with this string. ")
+	parser.add_argument("-inc", "--includes", type=str,  
+		help="If folder includes a mix of files, analyze only the subset with \
+		names that include this string. ")
 	parser.add_argument("-dc", "--default_comparison", type=str, 
 		help="Pick a default file for comparison. If none given, will look for \
 		a file that is named identically but with 'designed' replaced by \
@@ -199,9 +205,6 @@ class single_design_analysis():
 		self.total_energy = 0
 		self.ddg_energy = 0
 
-		self.hbnet_energy = 0
-		self.constraint_energy = 0
-
 		# Energy changes (designed - WT)
 		if self.wt:
 			self.mutated_residues = {}
@@ -209,8 +212,6 @@ class single_design_analysis():
 			self.total_energy_change = None
 			self.ddg_energy_change = None
 
-			self.hbnet_energy_change = None
-			self.constraint_energy_change = None
 
 		self.calculate_sequence()
 		self.calculate_energies()
@@ -283,6 +284,11 @@ class single_design_analysis():
 
 	def calculate_hbnet_energy(self):
 		""" Calculate HBnet energies, if option selected """
+		self.hbnet_energy = 0
+
+		if self.wt:
+			self.hbnet_energy_change = 0
+
 		# HBnet energies
 		sf_hb = dp.get_score_function(
 			ref15=False, constraints=False, hbnet=True)
@@ -297,6 +303,11 @@ class single_design_analysis():
 
 	def calculate_constraints_energy(self):
 		""" Calculate constraint scores. Requires CST file. """
+		self.constraint_energy = 0
+
+		if self.wt:
+			self.constraint_energy_change = 0
+
 		# Constraint energies
 		sf_cst = dp.get_score_function(ref15=False)
 		tem_cst = TotalEnergyMetric()
@@ -423,9 +434,17 @@ def analyze_design_decoys(args):
 	"""
 	# Get list of designed pdbs (even if gzipped)
 	if args.design_protease:
-		designed_pdbs = glob(join(args.folder, '*designed*.pdb*'))
+		pdb_set = '*designed*.pdb*'
 	else:
-		designed_pdbs = glob(join(args.folder, '*.pdb*'))
+		pdb_set = '*.pdb*'
+
+	if args.prefix:
+		pdb_set = args.prefix + pdb_set
+
+	if args.includes:
+		pdb_set = '*' + args.includes + pdb_set
+
+	designed_pdbs = glob(join(args.folder, pdb_set))
 	designed_pdbs.sort()
 
 	# If default_comparison PDB is given, use it for comparison
@@ -544,7 +563,13 @@ def main(args):
 	folder_base = basename(folder.rstrip('/'))
 
 	# Naming pickled analysis results
-	pickle_name = join(folder, folder_base + '_design_analysis.pkl')
+	out_file_name = 'design_analysis.pkl'
+	if args.includes:
+		out_file_name = includes + '_' + out_file_name
+	if args.prefix:
+		out_file_name = args.prefix + '_' + out_file_name
+
+	pickle_name = join(folder, folder_base + '_' + out_file_name)
 
 	# Reading in previous analysis if it has been done, unless user said redo
 	if isfile(pickle_name) and not args.force_evaluate:
@@ -564,7 +589,13 @@ def main(args):
 		print('\nRaw results saved as {}'.format(pickle_name))
 
 	# Write report
-	report_name = join(folder, folder_base + '_summary.csv')
+	report_basename = 'summary.csv'
+	if args.includes:
+		report_basename = '_'.join([includes, report_basename])
+	if args.prefix:
+		report_basename = '_'.join([args.prefix, report_basename])
+
+	report_name = join(folder, folder_base + '_' + report_basename)
 	write_summary(report_name, collected_decoy_info)
 
 

@@ -84,7 +84,8 @@ def parse_args():
 		help="Manually input mutations in the format [site] [one-letter res]. \
 		Accepts multiple uses. (Ex: -mm 138 I -mm 183 R) Note, if you intend \
 		to change the catalytic residues, you must edit the PDB's enzdes \
-		comments as well, or applying constraints won't work properly.")
+		comments as well, or applying constraints won't work properly. Uses \
+		pose numbering, which may differ from PDB.")
 	parser.add_argument("-cp", "--constrain_peptide", action="store_true",
 		help="Option to add coordinate constraints to the substrate peptide \
 		backbone atoms. False by default.")
@@ -103,6 +104,10 @@ def parse_args():
 	parser.add_argument("-v", "--verbose", action="store_true", 
 		help="For debugging: Don't mute Rosetta output.")
 	args = parser.parse_args()
+
+	if args.verbose:
+		print(args)
+
 	return args
 
 
@@ -121,8 +126,7 @@ def str2bool(v):
 def init_opts(extra_opts, cst_file='ly104.cst', verbose=False):
 	""" Produces a list of init options for PyRosetta, including cst file """
 	ros_opts = '-ex1 -ex2  -use_input_sc -flip_HNQ'
-	ros_opts += ' -enzdes::cstfile {}'.format(cst_file)
-	ros_opts += ' -cst_fa_weight 1.0 -run:preserve_header -out:pdb_gz'
+	ros_opts += ' -cst_fa_weight 1.0 -run:preserve_header'
 
 	if not verbose:
 		ros_opts += ' -mute all'
@@ -161,18 +165,21 @@ def make_residue_changes(pose, sf, subst_seq, subst_start, cat_res, manual_muts)
 	# Create dict of {res: AA} for changes to make
 	res_changes = {}
 
+	# Add substrate threading to list of res changes
+	print("\nInserting substrate sequence:\n{}".format(subst_seq))
+	subst_range = range(subst_start, subst_start + len(subst_seq))
+	for n, i in enumerate(subst_range):
+		res_changes[i] = subst_seq[n].upper()
+
 	# Add manual mutations list
 	if manual_muts:
 		print("\nApplying point substitutions:")
 		for m in manual_muts:
 			res_changes[int(m[0])] = m[1].upper()
 			print(m[0], m[1].upper())
-
-	# Add substrate threading to list of res changes
-	print("\nInserting substrate sequence:\n{}".format(subst_seq))
-	subst_range = range(subst_start, subst_start + len(subst_seq))
-	for n, i in enumerate(subst_range):
-		res_changes[i] = subst_seq[n].upper()
+			if cat_res:
+				if int(m[0]) in cat_res:
+					print('Warning: {} is a catalytic residue'.format(m[0]))
 
 	# Make TaskFactory to input changes
 	mobile_residues = OrResidueSelector() # Keep list of mobile residues
@@ -192,9 +199,10 @@ def make_residue_changes(pose, sf, subst_seq, subst_start, cat_res, manual_muts)
 	shell.set_include_focus_in_subset(False)
 	shell.set_distance(8)
 	
-	# Exclude catalytic residues 
+	# Exclude catalytic residues from repackable shell if not mutated
 	if cat_res:
-		catalytic = ResidueIndexSelector(','.join([str(i) for i in cat_res]))
+		skip_res = [i for i in cat_res if i not in res_changes.keys()]
+		catalytic = ResidueIndexSelector(','.join([str(i) for i in skip_res]))
 		not_catalytic = NotResidueSelector(catalytic)
 		shell = selector_intersection(shell, not_catalytic)
 	
@@ -383,10 +391,11 @@ def selector_to_list(pose, selector):
 
 ######### Setup ##############################################################
 
-def apply_constraints(pose):
+def apply_constraints(pose, cst_file='protease_design/ly104.cst'):
 	""" Applies the constraints form the input CST file to a pose """
 	cstm = AddOrRemoveMatchCsts()
 	cstm.set_cst_action(ADD_NEW)
+	cstm.cstfile(cst_file)
 	cstm.apply(pose)
 	return pose
 
@@ -548,9 +557,10 @@ def main(args):
 
 	# Destination folder for PDB files
 	dir_name = args.out_dir
-	if not isdir(dir_name):
-		print('\nMaking directory: {}'.format(dir_name))
-		makedirs(dir_name)
+	if not args.test_mode:
+		if not isdir(dir_name):
+			print('\nMaking directory: {}'.format(dir_name))
+			makedirs(dir_name)
 
 	# Getting name for outputs
 	if args.name:
@@ -563,14 +573,17 @@ def main(args):
 	# Getting score function
 	sf = get_score_function(constraints=True, hbnet=args.use_hb_net)	
 
-	# Preparing pose, with constraints, manual mutations, substrate threading
+	# Preparing pose, with substrate threading, manual mutations, constraints
 	pose = pose_from_pdb(args.start_struct)
+
 	if args.constrain_peptide:
 		pose = coord_constrain_peptide(pose)
-	pose = apply_constraints(pose)
-
+	pose = apply_constraints(pose, args.constraints)
 	pose = make_residue_changes(pose, sf, args.sequence, 
 		args.subst_site, args.cat_res, args.mutations)
+
+	if not args.test_mode:
+		pose.dump_pdb('test/test.pdb')
 
 	# Making residue selectors
 	residue_selectors = select_residues(args.cat_res, args.pep_subset, 
@@ -595,6 +608,10 @@ def main(args):
 
 	if args.test_mode:
 		test_and_exit(args, ros_opts, residue_selectors, pose, dec_name)
+
+	#with open(dec_name + '_inputs.txt', 'w') as w:
+	#	for arg in vars(args):
+	#		w.write('{}\t{}\n'.format([arg, getattr(args, arg)]))
 
 	jd_design(dec_name, args.number_decoys, pose, sf, mm, tf, save_wt=save_wt)
 	#relaxed_pose = fastrelax(pose, sf, mm)

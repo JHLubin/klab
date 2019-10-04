@@ -1,6 +1,7 @@
 $ cat .gitignore
 
 /boot_camp/*
+/diversity_committee/*
 
 /esterase_collaboration/*
 !/esterase_collaboration/*.pdb
@@ -11,6 +12,10 @@ $ cat .gitignore
 !/esterase_collaboration/*.txt
 
 /fibrils_collaboration/*.pptx
+/fibrils_collaboration/design_simulations/*
+!/fibrils_collaboration/design_simulations/*.py
+!/fibrils_collaboration/design_simulations/*.txt
+/fibrils_collaboration/FoldIt/images/*
 /fibrils_collaboration/grant_draft.docx
 /fibrils_collaboration/design_htra1_orig/*
 /fibrils_collaboration/ehrmann/*
@@ -23,10 +28,10 @@ $ cat .gitignore
 /fibrils_collaboration/htra1_asyn_design/*
 /fibrils_collaboration/notes/*
 /fibrils_collaboration/papers/*
-/fibrils_collaboration/relax/*
-!/fibrils_collaboration/relax/*.py
-!/fibrils_collaboration/relax/*.txt
-!/fibrils_collaboration/relax/*.xml
+/fibrils_collaboration/relax_simulations/*
+!/fibrils_collaboration/relax_simulations/*.py
+!/fibrils_collaboration/relax_simulations/*.txt
+!/fibrils_collaboration/relax_simulations/*.xml
 /fibrils_collaboration/scan_simulations/*
 !/fibrils_collaboration/scan_simulations/*.py
 
@@ -34,6 +39,7 @@ $ cat .gitignore
 /lab_results/*
 
 /loop_swap_protocol/calibrate_CCDEndsGraftMover/*
+/loop_swap_protocol/dali_data/*
 /loop_swap_protocol/serine_proteases/*/
 /loop_swap_protocol/serine_proteases/view_all.pse
 
@@ -70,6 +76,7 @@ protease_design/*.gcproj
 
 /protocols/*
 /pyrosetta*/*
+/PyRosetta.notebooks-master/*
 /python_class/*
 /rosetta*/*
 /SACNAS/*
@@ -82,7 +89,15 @@ protease_design/*.gcproj
 /uck2_collaboration/ligands/mol2/*
 /uck2_collaboration/params/original/*
 /uck2_collaboration/params/pdbs/*
-/uck2_collaboration/simulation_results/*
+/uck2_collaboration/simulation_results/*.tar.gz
+/uck2_collaboration/simulation_results/designing_enzyme/design_round_2/*.fasc
+/uck2_collaboration/simulation_results/designing_enzyme/design_round_2/*.pdb.gz
+/uck2_collaboration/simulation_results/designing_enzyme/design_round_2/*.pkl_
+/uck2_collaboration/simulation_results/designing_enzyme/design_round_2/*.csv
+/uck2_collaboration/simulation_results/designing_enzyme/extra_early_designs/*
+/uck2_collaboration/simulation_results/designing_enzyme/round_1/*/*
+/uck2_collaboration/simulation_results/mutant_sensitivity/*.fasc
+/uck2_collaboration/simulation_results/mutant_sensitivity/*.pdb.gz
 
 /UMSAP/*
 
