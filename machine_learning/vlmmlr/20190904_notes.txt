@@ -1,0 +1,41 @@
+Attendees
+Joseph Lubin, J Maguire, Rocco Moretti, Steven Lewis, Vikram Mulligan, Vinh Truong, Yifan Song, Brian Weitzner, Dave La
+
+Moving to Wednesdays at 3, might switch back to Hangouts, given low turnout
+
+Vikram -- PreCon talk had more than RosettaCon talk
+
+Allows a little redundancy in features
+
+Regularization
+	L1 --> sum of abs values of parameters
+		Favors few nonzero elements 
+	L2 --> sum of squares
+		Favors many small nonzero
+Vikram used both to see salient parameters
+Regularization resists overfitting
+Picked parameters to best fit test set (not training set)
+
+Training vs validation 		vs 			test
+Train 		Calibrate hyperparameters	Check accuracy
+
+~10^6 trainable parameters
+Hyperparameters = weights on L1 and L2 parameters, which iteration to stop at, layout of neural network, step size in gradient descent
+
+Goal: throw out bad designs, leave mostly good ones. Okay to keep some bad ones. Not okay to throw out good ones.
+
+Used linear (instead of typical quadratic) loss function
+
+Didn't want binary classifier, wanted it like a regression, using PNear
+
+Did convert estimated PNear to an energy term -- there is wider interest in doing this. Vikram is developing a pilot app, with help from Jack Maguire. Challenge to link and avoid competition over GPUs. Once trained though, GPU is not much better than CPU, might cost more to just load over. Might be advantage to GPU for evaluating packing. Still looking at performance benchmarks for when it makes more sense to GPU than CPU. Not a lot of API resources for passing back and forth between CPU and GPU, may be a limitation of TensorFlow. 
+
+Doubled true positive rate
+
+Challenges linking Rosetta and TensorFlow, whether to do python (limited, high level) or C++ (compiler/builder challenges).
+
+Generalizing: move to 1D graph convolutions might be able to handle cyclic peptides of size != 10 residues
+
+Did not use gradient descent minimization on parameters
+
+Jack Maguire up next session

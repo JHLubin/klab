@@ -1,0 +1,71 @@
+20190918
+Jack Maguire
+Slides on Slack
+
+github.com/yangkky/Machine-learning-for-proteins/
+	Uses tensor flow
+
+Neural net background
+	Matrix math with random numbers
+	ReLu = rectified linear unit = most common activation function
+	Take derivative of loss with respect to all random values in matrix, adjust them to minimize loss
+
+	Often don't multiply full matrices by full matrices, but rather fragments of matrices
+		Convolutions vs locally connected layers (the former is less costly)
+
+
+RosettaCon talk: using neural networks to replace/enhance centroid mode
+	Application: docking
+
+	Noted poor correlation between centroid score and REF15 score
+	Tried neural net to find better relationship
+
+	Mouse is Jack's score function -- very different from Score3 (centroid SF)
+	Mouse is slower than Score3, but yielded a better 1/500 in score and ddG
+
+	6 months of training. Question whether it's just picking larger interfaces, which we can do more easily than ML
+
+
+Mouse: Model of Ultimate Surface Energy
+	Each residue has list of yes/no switches for 20 allowed AA's
+		Fixed seq = only one on; design = all on
+		Possibility: derivative of energy in respect to switch might give useful information about relative value of residues in positions
+	Each surface residue's surroundings scored with mouse, total score evaluated for final result
+		Mouse scores individual residues
+	Includes both numerical/text info and pixel info convoluting together
+	Ray casting for pixels
+	Two branches merging together
+	Parameters interact with pixels fully connected, pixels to pixels only local
+	Multiple layers flattening the tensor
+	Final output: one scalar value intended to correlate with REF15
+
+	19000 input parameters
+
+	Always faster on CPU than GPU, but only doing single-network runs each time
+		Might work faster running 100 residues simultaneously
+
+	Multicool learning rate--spike learning rate then slow down several times produced better loss
+		David Baker's keynote: learning rate was more important than architecture
+
+
+Multiple optimizaton methods, Adam prevailed when Sam tried it, nobody else sampled different methods
+	Compared to Rosetta working best with LBFGS
+	Issue with overloading memory to employ LBFGS in this case
+
+Mouse results:
+	Mouse outperforms Score3 70-80% of the time, albeit on an unrealistic set (with full design on)
+	More validation and one-way design testing to be done in the future
+
+Keras interface is good, preferred to TensorFlow
+
+15-20 M training parameters down to 60-200 K without loss of quality
+200M training points (like Vikram, easy to generate more data)
+	Doesn't go through all data in a single epoch
+	Makes ML easier if you can trivially generate more data
+	Didn't do anything to control for overtraining, other than having a validation set, since more data than parameters
+		No dropout or regularization
+Might switch to 8-bit integers for a big speed up without a lot of accuracy loss
+	Intel: OpenVino, optimizes for Intel CPUs.
+	Vikram posting link in vlmmlr Slack channel
+
+Sign up if you want to discuss projects, or just bring up ideas for discussion

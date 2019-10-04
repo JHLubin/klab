@@ -1,0 +1,75 @@
+20191002
+
+New Slack page just for papers
+
+Vlad Gligorijevic
+GCNN
+
+Predict between sequence and structure and function prediction using Gene Ontology
+	molecular function
+	biological process
+	cellular component
+Narrow down search space
+Uses BRENDA
+
+Possible solutions
+	Sequence-based (BLAST) 
+		Fails on non-homolog sequences
+	ML (SVM, logistic regression, etc.) methods 
+		Limited to one function at a time
+		Require constructing feature vector
+	CNN 
+		Multiple functions
+		High level features
+		Do not require feature engineering (pre-picking features)
+
+Process
+	Sequence 1-hot encoding
+	Filters of different sizes (5, 10, etc. residues)
+		Optimal length not known
+	Layers to convolute filters
+	Global max pooling layer
+	1-2 more dense layers with sigmoid activation function
+	Output
+There is redundancy, since all filters are just capturing the sequence, but it get s filtered out through the convolution
+
+Outperforms baselines on Swiss-Prot, beats BLAST
+
+There are CNN methods for function prediction
+
+
+GCNN
+Regular CNN can't apture/convolve long-range interactions
+
+Types of GCNN
+	Spectral formulation
+	Spatial formulation
+
+Graph theory: Laplacian/Fourrier transforms to go between Euclidian and non-Euclidian
+Fully connected graph (without weights) simplifies to dense layer
+Separate diffusion and projection steps (with weight) for sparser graphs
+Can permute all nodes
+Isomorphism 
+
+Adjacency matrix, Diagonal degree matrix, H input feature matrix, Weight matrix for layer 1
+
+
+Vlad had addressed multi-size issue. Filter is independent of sequence length
+W matrix is independent on size of protein. 
+Zero-pads on a batch-level to compensate for different sizes.
+Global pooling computes over all residues, so padding shouldn't matter.
+
+CNN outperformed for <200 residues, but GCNN did much better for larger proteins
+Limited sampling to 1200 residue max in training
+
+Model does better with GCNN on Rosetta structure than CNN on sequence-only
+
+Trained on 40K PDB contact maps
+Correltation best between native structure and lowest score -- GCNN good for de-noising
+
+Kipf and Welling 2016 GCNN paper
+
+GCNN is not permutation-invariant, so re-ordering conventional CNN would not work. 
+	Did Sam's method use this, or was he just feeding into conventional CNN.
+
+GCNN tutorial: http://snap.stanford.edu/deepnetbio-ismb/
