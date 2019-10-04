@@ -1,0 +1,1 @@
+for f in pdz_relaxed_1 pdz_relaxed_2 pdz_relaxed_3 pdz_relaxed_4; do com="python design_pdz_for_asyn.py ${f}.pdb \${job}"; python ../slurmit_BAY.py --job "${f}" --partition main --tasks 1 --requeue True --usearray True --array 1-100 --time 4:00:00 --begin now --outfiles pdz_designs/logs/${f}_job%a --command "$com"; done 

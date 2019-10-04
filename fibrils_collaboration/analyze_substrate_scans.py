@@ -259,19 +259,19 @@ def main(args):
 		best_decoys.append(f_cleaned[0])
 
 	#for n, i in enumerate(best_decoys):
-	#	with open(args.name + '_scores.txt', 'a') as w:
-	#		if n == 0:
-	#			w.write('\t'.join(list(i.keys()))+'\n')
-	#		w.write('\t'.join([str(i) for i in list(i.values())])+'\n')
+		with open(args.name + '_scores.txt', 'a') as w:
+			if n == 0:
+				w.write('\t'.join(list(i.keys()))+'\n')
+			w.write('\t'.join([str(i) for i in list(i.values())])+'\n')
 
 	# Get residue scores
 	for n, i in enumerate(best_decoys):
 		o = get_pose_discrimination_scores(join(args.directory, basename(i['filename'])))
 
-		#with open(args.name + '_discriminators.txt', 'a') as w:
-		#	if n == 0:
-		#		w.write('\t'.join(['name', 'prot_score', 'pep_score', 'cst_score', 'discriminator'])+'\n')			
-		#	w.write('\t'.join([str(i) for i in o])+'\n')
+		with open(args.name + '_discriminators.txt', 'a') as w:
+			if n == 0:
+				w.write('\t'.join(['name', 'prot_score', 'pep_score', 'cst_score', 'discriminator'])+'\n')			
+			w.write('\t'.join([str(i) for i in o])+'\n')
 
 if __name__ == '__main__':
 	args = parse_args()
