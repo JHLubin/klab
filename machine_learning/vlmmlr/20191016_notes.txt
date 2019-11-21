@@ -1,0 +1,56 @@
+20191016
+
+https://colab.research.google.com/github/sokrypton/tf_proteins/blob/master/coord_to_dihedrals_tools.ipynb
+
+Get up to speed:
+	Deep Learning with Python
+	Francois Chollet
+
+There's also a VLMMLR papers channel on Slack
+
+TensorFlow will be supported in Rosetta
+
+Sergey Ovchinnikov
+	https://colab.research.google.com/drive/14M3k64CNzanPy29gq0xmOrtzcNBuIjVA
+
+	Using Google Colab --> free GPU or TPU
+	Keras is good. 
+		Keeps consistent even with TensorFlow updates, use as many keras functions as possible over TF
+		Lambda lets you write your own functions (lambda in python)
+
+	Took nine residues, changed them to 1-hot encoding, convolute with secondary structure, ten epochs
+
+	Moving up to fragment picker, kick out phi, psi, omega
+
+	Note: you can stop and resume model training whenever
+	Note: these take a lot of the things that Vlad demoed last week that he wrote himself and shrink them down to quick easy commands
+	Can take multiple outputs, multiple inputs, simultaneously training on different kinds of data with nonsequential
+	See Keras documentation
+
+	Deciding how many layers: start as simple as possible, adding complexity only when necessary. Google has architecture optimizer --> cloud.google.com/automl.  Architecture can be done by anyone -- that's generic. Our contribution as protein scientists will be in defining inputs, outputs, loss functions. 
+
+Jack Maguire
+	Slides posted on slack, can clone repo
+
+	Let's simplify it down a little. We've had big stuff the last few weeks
+
+	ML in Rosetta should be lots of little networks that are easily replaced, rather than a big monolith that needs massive retraining/refactoring.
+
+	Optimizing packer. 100 AA design, never get the same sequence twice --> haven't found the real minimum.
+	Maybe: identify unfruitful AA's early and either skip them or divert resources elsewhere
+	Minutes of training can give a nice speedup to packing
+
+	Rather than running 20 steps of repacking with temp ramping, check acceptance rates from first five
+
+	Use tensorflow-gpu
+
+	First round, class_weight used 200 instead of 19, since false negatives are much worse than false positives
+
+	Last two columns of analyze.py
+		fraction of work prevented
+		fraction of AAs lost
+		both vs cutoff threshold
+
+	Can have a competition using score.py, add results to score table
+
+Vikram added another good first neural nets guide (don't miss the big button at the top of the screen). It doesn't relate to Rosetta, but it's good basics.

@@ -40,6 +40,8 @@ $ cat .gitignore
 
 /loop_swap_protocol/calibrate_CCDEndsGraftMover/*
 /loop_swap_protocol/dali_data/*
+/loop_swap_protocol/images/*
+/loop_swap_protocol/Manning-Deep-Learning-with-Python-final.pdf
 /loop_swap_protocol/serine_proteases/*/
 /loop_swap_protocol/serine_proteases/view_all.pse
 

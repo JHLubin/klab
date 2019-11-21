@@ -53,3 +53,34 @@ psi-dali?
 		Removed all heteroatoms
 		Pruned down other PDBs to chain(s) that aligned with TEV
 		Changed chain to A for single remaining chain proteins
+
+Can't seem to do search locally. Ran server on first eight listed structures after 1lvm and saved results.
+Structures matching:
+	1lvo 	170
+	1qa7 	124
+	1qy6 	2629
+	2j92 	121
+	3mmg 	132
+	4fln 	195
+	5hm2 	121
+	5ilb 	178 
+Non-redundant structures: 	2152
+Excluding 1qy6:				232
+
+Running Dali on Klab1
+	# Downloaded and extracted ncbi-blast+-2.9.0-src.tar.gz
+	cd
+	wget http://ekhidna2.biocenter.helsinki.fi/dali/DaliLite.v5.tar.gz
+	tar -zxvf DaliLite.v5.tar.gz
+	cd DaliLite.v5/bin
+	make
+	cd ..
+	./test.csh > my_test_output
+	diff my_test_output test_output # no difference
+	cd
+	mkdir dali_data
+	mkdir dali_data/DAT
+	mkdir dali_data/pdb
+	cd dali_data
+	~/DaliLite.v5/bin/import.pl --rsync --pdbmirrordir pdb --dat DAT --clean # Makes lots of dss files wherever run
+	

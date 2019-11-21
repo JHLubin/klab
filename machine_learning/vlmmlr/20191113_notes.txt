@@ -1,0 +1,14 @@
+20191113
+
+Vikram -- chalk talk
+Linking Rosetta against TensorFlow libraries, inputs and outputs between the two
+	Vikram, Sergey, Jack
+
+There's an issue with how TF takes over a GPU. Instead, Vikram is making a COU-based program that manages access to the GPU. RosettaTensorflowManager. This ties in with Vikram's other work on multithreading different parts of Rosetta.
+
+Can evaluate derivatives as well as a neural network, perform saliency analysis. 
+
+Merging master soon
+Currently some hard-coded parts, can't make it fully general yet.
+
+Next meeting 12/4 (3 weeks, not 2)
