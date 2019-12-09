@@ -1,3 +1,4 @@
+import math.pi
 import numpy
 
 #INPUTS: list of pairable vectors. Obj1 should be a list of vectors
@@ -7,15 +8,15 @@ def vector_angle(v1, v2):
     v2_u = v2 / numpy.linalg.norm(v2)
     return numpy.arccos(numpy.clip(numpy.dot(v1_u, v2_u), -1.0, 1.0))
 
-def calc_rmsa(obj1, obj2, ratio=(math.pi/6.0)):
-    def zero_vector_pair(v_pair):
-        trans = [0. - v_pair[0][0], 0. - v_pair[0][1], 0. - v_pair[0][2]]
-        new_pair = []
-        for point in v_pair:
-            new_point = numpy.array(point) + numpy.array(trans)
-            new_pair.append(new_point)
-        return new_pair
-    
+def zero_vector_pair(v_pair):
+    trans = [0. - v_pair[0][0], 0. - v_pair[0][1], 0. - v_pair[0][2]]
+    new_pair = []
+    for point in v_pair:
+        new_point = numpy.array(point) + numpy.array(trans)
+        new_pair.append(new_point)
+    return new_pair
+
+def calc_rmsa(obj1, obj2, ratio=(pi/6.0)):
     compare_vectors = zip(obj1, obj2)
     vector_ang_sum = 0.0
     for vector_pairs in compare_vectors:

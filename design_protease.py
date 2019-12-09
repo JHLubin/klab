@@ -37,7 +37,8 @@ from pyrosetta.rosetta.core.select.residue_selector import \
 from pyrosetta.rosetta.core.simple_metrics.metrics import \
 	SelectedResiduesMetric
 from pyrosetta.rosetta.protocols.constraint_generator import \
-	AddConstraints, CoordinateConstraintGenerator
+	AddConstraints, CoordinateConstraintGenerator, \
+	HydrogenBondConstraintGenerator
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
 from pyrosetta.rosetta.protocols.minimization_packing import PackRotamersMover
 from pyrosetta.rosetta.protocols.relax import FastRelax
@@ -89,6 +90,12 @@ def parse_args():
 	parser.add_argument("-cp", "--constrain_peptide", action="store_true",
 		help="Option to add coordinate constraints to the substrate peptide \
 		backbone atoms. False by default.")
+	parser.add_argument("-hbc", "--hbond_constraints", nargs=2, type=str, 
+		help="Apply H-bond constraints to preserve beta sheets. Requires two \
+		string inputs in the form used by ResidueIndexSelector for lists of \
+		residues to bond. (Use pose numbers, not PDB numbers.) '215,217' and \
+		'185,187' for Htra1 with the extended peptide, '199-203' and '170-174' \
+		for HCV.")
 	parser.add_argument("-init", "--extra_init_options", type=str, 
 		action='append', help='Extra init options for Rosetta (ex: \
 		"-extra_res_fa LG1.params")')
@@ -410,6 +417,26 @@ def coord_constrain_peptide(pose, selection=ChainSelector('B')):
 	ac.apply(pose)
 	return pose
 
+def apply_hbond_constraints(pose, first_strand, second_strand):
+	"""
+	Adds H-bond constraints to a pose, given lists of residues in two beta 
+	strands. Lists should be given as strings of residues, such as '215,217' 
+	and '185,187' for Htra1 with the extended peptide, or '199-203' and 
+	'170-174' for HCV. 
+	"""
+	# Create selectors for residues in each set
+	hb_res_1 = ResidueIndexSelector(first_strand)
+	hb_res_2 = ResidueIndexSelector(second_strand)
+
+	# Set up constraints generation
+	hbcg = HydrogenBondConstraintGenerator()
+	hbcg.set_residue_selector1(hb_res_1)
+	hbcg.set_residue_selector2(hb_res_2)
+
+	# Apply, return pose
+	hbcg.apply(pose)
+	return pose
+
 
 def make_move_map(pose, selectors):
 	""" 
@@ -425,7 +452,7 @@ def make_move_map(pose, selectors):
 	for i in selector_to_list(pose, selectors['peptide']):
 		mm.set_bb(i, True)
 	
-	# Mobile side chains for mutable and packable residues
+	# Mobile side chains for all mutable and packable residues
 	for i in selector_to_list(pose, selectors['mutable']):
 		mm.set_chi(i, True)
 	for i in selector_to_list(pose, selectors['packable']):
@@ -529,6 +556,22 @@ def jd_design(name, decoy_count, pose, score_function, movemap, task_factory,
 
 ######### Main ###############################################################
 
+def write_opts(name, args):
+	""" Write an output file listing the options """
+	# Making output name
+	opts_out_name = name + '_options.txt'
+
+	# Make list of arguments
+	#arg_list = []
+	#template = '{:30}{}'
+	#for arg in args:
+	#	arg_list.append(template.format(arg, args[arg]))
+
+	# Writing file
+	with open(opts_out_name, 'w') as w:
+		#w.writelines(arg_list)
+		w.write(str(args))
+
 def test_and_exit(args, opts, residue_selectors, pose, name):
 	""" Prints info then exits """
 	print('\n\nArgs:')
@@ -570,6 +613,10 @@ def main(args):
 		# strip out .pdb or .pdb.gz extension
 		out_name = out_name.replace('.pdb', '').replace('.gz', '')
 
+	# Writing inputs list file
+	if not args.test_mode:
+		write_opts(join(dir_name, out_name), args)
+
 	# Getting score function
 	sf = get_score_function(constraints=True, hbnet=args.use_hb_net)	
 
@@ -578,12 +625,11 @@ def main(args):
 
 	if args.constrain_peptide:
 		pose = coord_constrain_peptide(pose)
-	pose = apply_constraints(pose, args.constraints)
+	if args.hbond_constraints:
+		pose = apply_hbond_constraints(pose, *args.hbond_constraints)
 	pose = make_residue_changes(pose, sf, args.sequence, 
 		args.subst_site, args.cat_res, args.mutations)
-
-	if not args.test_mode:
-		pose.dump_pdb('test/test.pdb')
+	pose = apply_constraints(pose, args.constraints)
 
 	# Making residue selectors
 	residue_selectors = select_residues(args.cat_res, args.pep_subset, 
