@@ -28,6 +28,7 @@ $ cat .gitignore
 /fibrils_collaboration/ext_cat_flexpep/*
 /fibrils_collaboration/ext_cat_tau_slide/*
 /fibrils_collaboration/htra1_asyn_design/*
+/fibrils_collaboration/images/*
 /fibrils_collaboration/notes/*
 /fibrils_collaboration/papers/*
 /fibrils_collaboration/relax_simulations/*
