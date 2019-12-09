@@ -1,6 +1,6 @@
 $ cat .gitignore
 
-*.json
+*.ini
 
 /boot_camp/*
 /diversity_committee/*
