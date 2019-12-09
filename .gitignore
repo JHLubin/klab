@@ -1,5 +1,7 @@
 $ cat .gitignore
 
+*.json
+
 /boot_camp/*
 /diversity_committee/*
 
