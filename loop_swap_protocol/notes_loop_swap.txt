@@ -84,3 +84,28 @@ Running Dali on Klab1
 	cd dali_data
 	~/DaliLite.v5/bin/import.pl --rsync --pdbmirrordir pdb --dat DAT --clean # Makes lots of dss files wherever run
 	
+
+Todo:
+	Remove structurally similar loops
+	Collect B-factor of loop residues
+	Window average phi-psi for loop endpoint alignment
+
+	Protocol
+		Read database
+		Perturb launch site
+			?Minor shearing to avoid clashing
+			Eliminate substantially clashing loops
+
+		CCDEndsGraft
+		Design
+
+	? Ambiguous constraints + stub library (inverse rotamers) + hot spots/hydrophobics (Sarel's influenza paper) --> automated, PlaceOnStub mover? Placed simultaneously
+	Multi-loop driven by loop interactions
+
+~/DaliLite.v5/bin/import.pl --pdbfile ../khare_lab/fibrils_collaboration/cat_relaxed.pdb --pdbid 3nzi --dat DAT/ --clean
+echo 3nziA > query.list
+mkdir htra1_match
+mv query.list htra1_match/
+mv htra1_query.list htra1_match/
+cd htra1_match/
+~/DaliLite.v5/bin/dali.pl --query query.list --db htra1_query.list --dat1 ../DAT/ --dat2 ../DAT/ --outfmt 'summary,alignments,equivalences,transrot' --clean 2> err

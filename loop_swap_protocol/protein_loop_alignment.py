@@ -15,20 +15,35 @@ tev_seq = 'GESLFKGPRDYNPISSTICHLTNESDGHTTSLYGIGFGPFIITNKHLFRRNNGTLLVQSLHGVFKVKNT
 tev_cat_res = {'H': 46, 'A': 81, 'N': 151} # In pose: H39, D74, C144
 # Map lists all loop regions, catalytic triad, all in PDB (not pose) numbers
 # Had to generate manually since loops might contain beta-fingers
-tev_map = { 'N':   range(8, 18),
-			1:     range(26, 28),
-			2:     range(38, 39),
-			3:     range(44, 54),
-			4:     range(59, 63),
-			5:     range(67, 74),
-			6:     range(78, 82),
-			7:     range(87, 109),
-			8:     range(117, 121),
-			9:     range(126, 139),
-			10:    range(143, 152),
-			11:    range(158, 161),
-			12:    range(172, 176),
-			'C':   range(182, 221)}
+tev_map = {    'N':  range(  8,  18),
+				 1:  range( 26,  28),
+				 2:  range( 38,  39),
+				 3:  range( 44,  54),
+				 4:  range( 59,  63),
+				 5:  range( 67,  74),
+				 6:  range( 78,  82),
+				 7:  range( 87, 109),
+				 8:  range(117, 121),
+				 9:  range(126, 139),
+				10:  range(143, 152),
+				11:  range(158, 161),
+				12:  range(172, 176),
+			   'C':  range(182, 221)}
+
+htra1_map = {  'N':  range(160, 183),
+				 1:  range(192, 198),
+				 2:  range(209, 214),
+				 3:  range(218, 226),
+				 4:  range(233, 235),
+				 5:  range(240, 241),
+				 6:  range(247, 250),
+				 7:  range(256, 276),
+				 8:  range(284, 290),
+				 9:  range(300, 317),
+				10:  range(320, 329),
+				11:  range(335, 337),
+				12:  range(349, 351),
+			   'C':  range(357, 370)}
 
 def get_distance(c1, c2):
 	""" Returns the distance between two Rosetts XYZ coordinate vectors"""

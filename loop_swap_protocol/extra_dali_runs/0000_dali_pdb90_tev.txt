@@ -1,0 +1,115 @@
+Chain   Z     rmsd lali nres  %id Description
+1lvm-A  37.5  0.9  214   229  100 CATALYTIC DOMAIN OF THE NUCLEAR INCLUSION                  
+3mmg-A  30.4  2.0  207   217   53 NUCLEAR INCLUSION PROTEIN A                               
+5hm2-A  17.4  2.5  173   201   15 3C PROTEINASE                                             
+1qa7-B  17.2  2.7  177   218   15 HAV 3C PROTEINASE                                         
+2j92-A  17.1  2.5  172   201   15 PICORNAIN 3C                                              
+5ilb-A  15.8  3.2  173   465   10 PROTEASE DO-LIKE 2, CHLOROPLASTIC,PROTEASE DO-LIK          
+1qy6-A  15.2  2.7  165   216   17 SERINE PROTEASE                                           
+4fln-B  15.0  3.4  173   464   11 PROTEASE DO-LIKE 2, CHLOROPLASTIC                         
+1lvo-D  14.6  2.7  155   301   14 REPLICASE, HYDROLASE DOMAIN                               
+5y28-C  14.6  3.1  167   277   15 PERIPLASMIC SERINE ENDOPROTEASE DEGP-LIKE                 
+6u1b-A  14.5  2.7  165   221   18 GLUTAMYL ENDOPEPTIDASE                                    
+3qo6-B  14.4  3.2  172   328   14 PROTEASE DO-LIKE 1, CHLOROPLASTIC                         
+3nzi-A  14.4  3.1  166   211   16 SERINE PROTEASE HTRA1                                     
+1p3c-A  14.3  2.9  161   215   19 GLUTAMYL-ENDOPEPTIDASE                                    
+2w7u-B  14.2  3.1  164   200   19 SERINE PROTEASE SPLA                                      
+3nwu-B  14.2  3.1  162   183   17 SERINE PROTEASE HTRA1                                     
+2z9i-A  14.1  3.2  165   284   13 PROBABLE SERINE PROTEASE PEPD                             
+1l1j-A  14.0  3.1  171   226   13 HEAT SHOCK PROTEASE HTRA                                  
+3rp2-A  13.8  3.1  164   224   15 RAT MAST CELL PROTEASE II                                 
+1azz-A  13.7  3.0  161   226   15 COLLAGENASE                                               
+1hyl-A  13.6  3.1  164   230   12 HYPODERMA LINEATUM COLLAGENASE                            
+4ink-A  13.6  3.0  157   203   18 SERINE PROTEASE SPLD                                      
+1agj-A  13.5  2.9  160   242   21 EPIDERMOLYTIC TOXIN A                                     
+2as9-A  13.5  3.2  160   207   14 SERINE PROTEASE                                           
+1bru-P  13.4  3.4  170   241   14 ELASTASE                                                  
+1sgf-G  13.4  3.2  162   232   16 NERVE GROWTH FACTOR                                       
+1fi8-B  13.3  3.0  160   227   13 NATURAL KILLER CELL PROTEASE 1                            
+1b0f-A  13.3  3.0  161   218   16 PROTEIN (ELASTASE)                                        
+1fy1-A  13.2  3.4  165   225   15 HEPARIN-BINDING PROTEIN                                   
+1a0j-A  13.2  3.2  161   223   12 TRYPSIN                                                   
+1pq5-A  13.2  2.9  158   225   11 TRYPSIN                                                   
+5c2z-A  13.1  3.0  163   248   18 EXFOLIATIVE TOXIN D2                                      
+1npm-A  13.1  3.2  160   223   15 NEUROPSIN                                                 
+1op0-A  13.1  3.2  164   234   13 VENOM SERINE PROTEINASE                                   
+1fuj-A  13.0  2.9  158   221   17 PR3                                                       
+1ao5-A  13.0  3.3  161   236   14 GLANDULAR KALLIKREIN-13                                   
+1yc0-A  13.0  3.1  162   247   12 HEPATOCYTE GROWTH FACTOR ACTIVATOR                        
+6e0u-A  13.0  3.0  161   241   17 SERINE PROTEASE                                           
+1ky9-B  12.9  3.4  170   396   12 PROTEASE DO                                               
+3cp7-A  12.9  2.9  161   216    9 ALKALINE SERINE PROTEASE AL20                             
+1spj-A  12.9  3.3  160   236   13 KALLIKREIN 1                                              
+1fxy-A  12.9  3.4  162   229   14 COAGULATION FACTOR XA-TRYPSIN CHIMERA                     
+4k1t-C  12.9  3.1  152   203   20 SERINE PROTEASE SPLB                                      
+4ic6-A  12.9  3.5  177   340   13 PROTEASE DO-LIKE 8, CHLOROPLASTIC                         
+5mm8-A  12.9  3.3  158   197   20 SERINE PROTEASE SPLE                                      
+1an1-E  12.9  3.3  162   223   12 TRYPSIN                                                   
+1eq9-A  12.8  3.3  156   222   16 CHYMOTRYPSIN                                              
+1amh-A  12.8  3.4  160   223   12 ANIONIC TRYPSIN                                           
+1fiz-A  12.7  3.6  168   263   15 BETA-ACROSIN HEAVY CHAIN                                  
+1m9u-A  12.7  3.3  164   241   11 EARTHWORM FIBRINOLYTIC ENZYME                             
+1qtf-A  12.7  2.8  158   246   17 EXFOLIATIVE TOXIN B                                       
+1trn-A  12.7  3.3  159   224   11 TRYPSIN                                                   
+4cre-A  12.7  3.5  163   238   15 COAGULATION FACTOR XI                                     
+1cvw-H  12.7  3.4  168   255   13 COAGULATION FACTOR VIIA (LIGHT CHAIN) (DES-GLA)           
+1h4w-A  12.6  3.3  156   224   10 TRYPSIN IVA                                               
+3f6u-H  12.6  3.6  167   241   12 VITAMIN K-DEPENDENT PROTEIN C HEAVY CHAIN                 
+1shy-A  12.5  2.8  156   228   12 HEPATOCYTE GROWTH FACTOR                                  
+5lpe-A  12.5  3.2  157   204   13 KALLIKREIN-10                                             
+1pfx-C  12.5  3.2  161   236   12 FACTOR IXA                                                
+3w94-A  12.5  3.4  161   235   10 ENTEROPEPTIDASE-1                                         
+2qy0-D  12.5  3.2  162   237   10 COMPLEMENT C1R SUBCOMPONENT                               
+4dgj-A  12.5  3.2  161   235   10 ENTEROPEPTIDASE CATALYTIC LIGHT CHAIN                     
+1g3c-A  12.5  3.3  160   225   10 BETA-TRYPSIN                                              
+5to3-B  12.4  3.5  167   368   14 PROTHROMBIN                                               
+1fiw-A  12.4  3.7  166   260   13 BETA-ACROSIN HEAVY CHAIN                                  
+1pyt-C  12.4  3.6  171   248   13 PROCARBOXYPEPTIDASE A                                     
+1ekb-B  12.4  3.2  162   235   10 ENTEROPEPTIDASE                                           
+1c5m-D  12.3  3.6  163   241   13 PROTEIN (COAGULATION FACTOR X)                            
+1op8-A  12.3  3.3  161   234   11 GRANZYME A                                                
+4lk4-A  12.3  3.4  165   326   13 VESB PROTEASE                                             
+5gvt-A  12.3  3.7  162   236   14 PLASMA KALLIKREIN                                         
+2pux-B  12.3  3.4  167   258   12 THROMBIN LIGHT CHAIN                                      
+3e0n-B  12.2  3.4  163   254   12 PROSTASIN                                                 
+5jb8-S  12.2  3.2  160   236   13 COAGULATION FACTOR IX                                     
+4bnr-A  12.2  3.5  160   237   12 HEPATOPANCREAS TRYPSIN                                    
+1mza-A  12.1  3.4  162   240   10 PRO-GRANZYME K                                            
+1kig-H  12.1  3.5  164   241   13 FACTOR XA                                                 
+1bda-A  12.1  3.5  167   266   15 SINGLE CHAIN TISSUE TYPE PLASMINOGEN ACTIVATOR            
+1a5i-A  12.1  3.4  163   266   17 PLASMINOGEN ACTIVATOR                                     
+1fdp-B  11.9  3.1  149   198   11 PROENZYME OF COMPLEMENT FACTOR D                          
+1gpz-A  11.7  3.4  160   368    9 COMPLEMENT C1R COMPONENT                                  
+1zjk-A  11.7  3.3  157   389   11 MANNAN-BINDING LECTIN SERINE PROTEASE 2                   
+1sgf-A  11.6  2.9  146   203   13 NERVE GROWTH FACTOR                                       
+1mbm-A  11.5  2.6  133   198   18 CHYMOTRYPSIN-LIKE SERINE PROTEASE                         
+1pyt-D  11.5  3.7  166   251   13 PROCARBOXYPEPTIDASE A                                     
+4bxw-B  11.5  3.2  157   288   15 FACTOR XA                                                 
+1gvl-A  11.4  3.5  153   223   12 KALLIKREIN 6                                              
+5jwf-A  11.3  2.9  163   700   12 ASP/GLU-SPECIFIC DIPEPTIDYL-PEPTIDASE                     
+5edm-A  11.1  3.6  166   550   13 PROTHROMBIN                                               
+5jxp-A  11.1  3.1  160   662   14 ASP/GLU-SPECIFIC DIPEPTIDYL-PEPTIDASE                     
+1mkw-K  10.8  3.5  161   287   13 ALPHA-THROMBIN                                            
+5jxf-A  10.7  3.0  161   696   16 ASP/GLU-SPECIFIC DIPEPTIDYL-PEPTIDASE                     
+3wom-A  10.7  2.9  162   699   15 DIPEPTIDYL AMINOPEPTIDASE BII                             
+1rgq-B  10.6  3.5  141   186   15 NS3 PROTEASE                                              
+3k65-B  10.5  3.5  159   274   16 PROTHROMBIN                                               
+5yvu-B  10.4  3.4  138   601   15 GENOME POLYPROTEIN                                        
+3u1i-B  10.4  3.6  132   168   14 SERINE PROTEASE SUBUNIT NS2B                              
+2wv9-A  10.3  4.0  135   600   10 FLAVIVIRIN PROTEASE NS2B REGULATORY SUBUNIT, FLAV          
+3lkw-A  10.3  4.0  142   211   15 FUSION PROTEIN OF NONSTRUCTURAL PROTEIN 2B AND             
+5jwg-A  10.1  3.1  162   705   14 ASP/GLU-SPECIFIC DIPEPTIDYL-PEPTIDASE                     
+5wdx-A  9.6   3.9  149   642   17 JFH-1 NS3                                                 
+6bqj-C  9.5   4.4  141   207   16 NS3 PROTEASE                                              
+5lc0-A  9.1   3.8  135   193   10 NS2B-NS3 PROTEASE,NS2B-NS3 PROTEASE                       
+1svp-A  8.9   3.8  135   160   13 SINDBIS VIRUS CAPSID PROTEIN                              
+4r8t-B  8.9   3.5  123   141   12 SERINE PROTEASE SUBUNIT NS2B                              
+2yol-A  8.7   3.5  135   213    9 SERINE PROTEASE SUBUNIT NS2B, SERINE PROTEASE NS3          
+4m9m-A  8.6   4.0  131   202   12 NS2B-NS3 PROTEASE                                         
+5t1v-B  8.5   3.9  126   163   13 NS2B-NS3 PROTEASE,NS2B-NS3 PROTEASE                       
+6bjr-A  8.0   3.7  164   575   12 PROTHROMBIN                                               
+5lkl-B  7.8   5.4  126   679    9 GENOME POLYPROTEIN                                        
+1ezx-C  7.7   2.8  111   140   12 ALPHA-1-ANTITRYPSIN                                       
+5mz4-A  7.7   3.5  122   704    9 GENOME POLYPROTEIN                                        
+1cu1-A  7.3   3.7  154   645   16 PROTEIN (PROTEASE/HELICASE NS3)                           
+2m9p-A  7.3   3.8  139   240   11 SERINE PROTEASE SUBUNIT NS2B, SERINE PROTEASE NS3
