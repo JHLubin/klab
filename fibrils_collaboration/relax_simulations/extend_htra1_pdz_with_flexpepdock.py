@@ -22,7 +22,7 @@ def apply_constraints(pose):
 	cg = CoordinateConstraintGenerator()
 	ors = OrResidueSelector()
 	ors.add_residue_selector(ChainSelector('A')) # Constrain main backbone
-	ors.add_residue_selector(ResidueIndexSelector('215-217')) # Preserving original peptide
+	ors.add_residue_selector(ResidueIndexSelector('113-115')) # Preserving original peptide
 	cg.set_residue_selector(ors)
 
 	ac = AddConstraints()
@@ -31,25 +31,24 @@ def apply_constraints(pose):
 
 	return 
 
-opts = '-enzdes::cstfile fibrils_collaboration/htra1_protease.cst -run:preserve_header -mute core'
+opts = '-enzdes::cstfile fibrils_collaboration/htra1_pdz.cst -run:preserve_header -mute core'
 opts += ' -pep_refine -ex1 -ex2 -use_input_sc -flip_HNQ -no_optH false -score:weights ref2015_cst'
 init(opts)
 
 # Score function and starting PDB
 sf = create_score_function('ref2015_cst')
-pose = pose_from_pdb('fibrils_collaboration/other_models/crude_ext_cat.pdb')
+pose = pose_from_pdb('fibrils_collaboration/other_models/crude_ext_pdz.pdb')
 
 # Setting FoldTree
 ft=FoldTree()
-ft.add_edge(1,211,-1)
-ft.add_edge(1,217,1)
-ft.add_edge(217,212,-1)
-ft.add_edge(217,223,-1)
+ft.add_edge(1,105,-1)
+ft.add_edge(1,115,1)
+ft.add_edge(115,106,-1)
 pose.fold_tree(ft)
 
 # Changing peptide sequence
-asyn_seq = "SIAAATGFVKKD"
-pose = dp.make_residue_changes(pose, sf, asyn_seq, 212, [61, 91, 169], None)
+asyn_seq = "EGYQDYEPEA"
+pose = dp.make_residue_changes(pose, sf, asyn_seq, 106, None, None)
 
 # Applying constraints to the pose
 apply_constraints(pose)
@@ -57,7 +56,7 @@ apply_constraints(pose)
 # Creating FlexPepDock protocol using init options
 fpdock = FlexPepDockingProtocol()
 
-decoy_name = 'fibrils_collaboration/relax_simulations/ext_asyn_cat_20191209/htra1_prot_asyn_ext_4'
+decoy_name = 'fibrils_collaboration/relax_simulations/ext_asyn_pdz_20191209/htra1_pdz_asyn_ext_4'
 jd = PyJobDistributor(decoy_name, 25, sf)
 while not jd.job_complete:
 	pp = Pose()
