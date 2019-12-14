@@ -5,12 +5,17 @@ import numpy as np
 import pickle
 from pyrosetta import *
 from pyrosetta.rosetta.core.scoring.dssp import Dssp
+from pyrosetta.rosetta.core.scoring import rmsd_atoms
+from pyrosetta.rosetta.core.scoring import superimpose_pose
+from pyrosetta.rosetta.core.select.residue_selector import ResidueIndexSelector
+from pyrosetta.rosetta.core.simple_metrics.metrics import RMSDMetric
+from pyrosetta.rosetta.core.simple_metrics.per_residue_metrics import PerResidueRMSDMetric
 from pyrosetta.rosetta.protocols.simple_moves import SuperimposeMover
 
-init('-mute all, -ignore_zero_occupancy false')
+#init('-mute all, -ignore_zero_occupancy false')
 #hcv_pose = pose_from_pdb('a_to_s_ly104_WT.pdb')
 #hcv_cat_res = {72:'H', 96:'D', 154:'S'}
-tev = pose_from_pdb('tev.pdb')
+#tev = pose_from_pdb('tev.pdb')
 tev_seq = 'GESLFKGPRDYNPISSTICHLTNESDGHTTSLYGIGFGPFIITNKHLFRRNNGTLLVQSLHGVFKVKNTTTLQQHLIDGRDMIIIRMPKDFPPFPQKLKFREPQREERICLVTTNFQTKSMSSMVSDTSCTFPSSDGIFWKHWIQTKDGQCGSPLVSTRDGFIVGIHSASNFTNTNNYFTSVPKNFMELLTNQEAQQWVSGWRLNADSVLWGGHKVFMSKP'
 tev_cat_res = {'H': 46, 'A': 81, 'N': 151} # In pose: H39, D74, C144
 # Map lists all loop regions, catalytic triad, all in PDB (not pose) numbers
@@ -70,19 +75,35 @@ def get_vector_obj_for_rmsa(pose, residue_number):
 	return [CA_N_vector, CA_C_vector]
 
 
-def get_rmsd(pose_1, pose_2, residues_1, residues_2):
-	assert len(residues_1) == len(residues_2)
-	n = len(residues_1)
+def get_section_RMSD(pose_1, selector_1, pose_2, selector_2):
+	"""
+	Calculates CA RMSD of pose regions. If selectors are given as none, will 
+	calculate the whole pose.
+	"""
+	rmsd = PerResidueRMSDMetric()
+	rmsd.set_rmsd_type(rmsd_atoms.rmsd_protein_bb_ca)
+	rmsd.set_comparison_pose(pose_1)
+	if selector_1:
+		rmsd.set_residue_selector_reference(selector_1)
+	if selector_2:
+		rmsd.set_residue_selector(selector_2)
+	
+	return rmsd.calculate(pose_2)
 
-	difs = 0
-	for i in range(n):
-		r1_coords = find_res_ca_coords(pose_1, residues_1[i])
-		r2_coords = find_res_ca_coords(pose_2, residues_2[i])
-		difs += (r2_coords.x - r1_coords.x) ** 2
-		difs += (r2_coords.y - r1_coords.y) ** 2
-		difs += (r2_coords.z - r1_coords.z) ** 2
 
-	return sqrt(difs / n)
+#def get_rmsd(pose_1, pose_2, residues_1, residues_2):
+	#assert len(residues_1) == len(residues_2)
+	#n = len(residues_1)
+
+	#difs = 0
+	#for i in range(n):
+	#	r1_coords = find_res_ca_coords(pose_1, residues_1[i])
+	#	r2_coords = find_res_ca_coords(pose_2, residues_2[i])
+	#	difs += (r2_coords.x - r1_coords.x) ** 2
+	#	difs += (r2_coords.y - r1_coords.y) ** 2
+	#	difs += (r2_coords.z - r1_coords.z) ** 2
+
+	#return sqrt(difs / n)
 
 
 def find_cat_res(pose):
@@ -122,7 +143,33 @@ def get_secstruct(pose):
 	return ss
 
 
-def align_proteins(pose_1, pose_2):
+def align_protein_sections(pose_1, selector_1, pose_2, selector_2):
+	"""
+	Aligns selected regions of two poses, superimposing the second pose onto 
+	the first, based on CA RMSD. Returns the RMSD value.
+	"""
+	prmsd = PerResidueRMSDMetric()
+	prmsd.set_rmsd_type(rmsd_atoms.rmsd_protein_bb_ca)
+	prmsd.set_comparison_pose(pose_1)
+	prmsd.set_residue_selector_reference(selector_1)
+	prmsd.set_residue_selector(selector_2)
+	amap = prmsd.create_atom_id_map(pose_2)
+	
+	return superimpose_pose(pose_2, pose_1, amap)
+
+
+def make_subpose(pose, start=1, end=1):
+	""" Return pose that is a section of another pose """
+	# Set end if not given
+	if end == 1:
+		end = pose.total_residue()
+
+	# Make new subpose
+	subpose = Pose(pose, start, end)
+
+	return subpose
+
+#def align_proteins(pose_1, pose_2):
 	""" 
 	Aligns two proteins usinf the Superimpose mover. The second protein will be 
 	aligned to the first. Accommodates proteins of different sizes by aligning 
@@ -131,13 +178,16 @@ def align_proteins(pose_1, pose_2):
 	residues in each.
 	"""
 	# Determining the size of the smaller pose
-	min_length = min(pose_1.total_residue(), pose_2.total_residue())
+	#min_length = min(pose_1.total_residue(), pose_2.total_residue())
 
 	# Creating mover from start to the smaller end, aligning with all BB atoms
-	sim = SuperimposeMover(pose_1, min_length, 190, min_length, 190, False)
+	#sim = SuperimposeMover(pose_1, min_length, 190, min_length, 190, False)
 
-	sim.apply(pose_2)
-	return
+	#sim.apply(pose_2)
+	#return
+
+
+#def insert_loop(scaffold, insert, )
 
 
 ################################################################################
@@ -519,21 +569,42 @@ class matched_loop():
 
 		self.query_loop_start = l_range[0]
 		self.query_loop_end = l_range[-1]
-		self.query_n_boundary = n_bound
-		self.query_c_boundary = c_bound
+		if n_bound:
+			self.query_n_boundary = n_bound
+		else: 
+			self.query_n_boundary = aligned_residues[0].query_pdb_number
+		if c_bound:
+			self.query_c_boundary = c_bound
+		else:
+			self.query_c_boundary = aligned_residues[-1].query_pdb_number
 
 		# Flanking residues
 		self.n_boundary = None
 		self.c_boundary = None
 		self.query_nearest_n_match = None
 		self.query_nearest_n_b_match = None
+		self.query_farthest_n_match = None
+		self.query_farthest_n_b_match = None
 		self.subject_nearest_n_match = None
 		self.subject_nearest_n_b_match = None
+		self.subject_farthest_n_match = None
+		self.subject_farthest_n_b_match = None
 		self.query_nearest_c_match = None
 		self.query_nearest_c_b_match = None
+		self.query_farthest_c_match = None
+		self.query_farthest_c_b_match = None
 		self.subject_nearest_c_match = None
 		self.subject_nearest_c_b_match = None
+		self.subject_farthest_c_match = None
+		self.subject_farthest_c_b_match = None
 		n_matches, c_matches, loop_res = self.collect_loop_match(aligned_residues)
+
+		# Overlaps
+		self.n_overlap_is_b = None
+		self.n_overlap_size = None
+		self.c_overlap_is_b = None
+		self.c_overlap_size = None
+		self.check_overlaps()
 
 		# Loop proximity to peptide substrate
 		self.loop_near_substrate = None
@@ -555,6 +626,11 @@ class matched_loop():
 		#	self.match_loop_endpoints(self, query_pose, subject_pose, n_matches, c_matches)
 		self.simple_pick_splice()
 
+		# Eliminate overly similar loops
+		self.subject_loop_matches_query_length = None
+		self.rmsd = None
+		self.check_loop_rmsd(query_pose, subject_pose, loop_res)
+
 		# Evaluate whether loop is a suitable target
 		self.is_near_target = None
 		self.is_not_domain = None
@@ -570,22 +646,17 @@ class matched_loop():
 		everything to the end.
 		"""
 		# Collecting N-terminal end of neighborhood
-		if self.query_n_boundary:
-			for ar in aligned_residues:
-				if ar.query_pdb_number == self.query_n_boundary:
-					range_start = aligned_residues.index(ar)
-					break
-		else:
-			range_start = 0
+		for ar in aligned_residues:
+			if ar.query_pdb_number == self.query_n_boundary:
+				range_start = aligned_residues.index(ar)
+				break
+
 
 		# Collecting C-terminal end of neighborhood
-		if self.query_c_boundary:
-			for ar in aligned_residues[::-1]:
-				if ar.query_pdb_number == self.query_c_boundary:
-					range_end = aligned_residues.index(ar)
-					break
-		else:
-			range_end = len(aligned_residues)
+		for ar in aligned_residues[::-1]:
+			if ar.query_pdb_number == self.query_c_boundary:
+				range_end = aligned_residues.index(ar)
+				break
 
 		# Return subset of aligned residues
 		return aligned_residues[range_start: range_end]
@@ -648,26 +719,34 @@ class matched_loop():
 		# Find matching residues on N-terminal side, going away from loop
 		for nn in n_neighbor_list[::-1]:
 			if nn.residues_align:
+				self.query_farthest_n_match = nn.query_pdb_number
+				self.subject_farthest_n_match = nn.subject_pdb_number
 				if not self.subject_nearest_n_match:
 					self.query_nearest_n_match = nn.query_pdb_number
 					self.subject_nearest_n_match = nn.subject_pdb_number
 				if nn.subject_sec_struct == 'E':
-					self.query_nearest_n_b_match = nn.query_pdb_number
-					self.subject_nearest_n_b_match = nn.subject_pdb_number
-					break
+					self.query_farthest_n_b_match = nn.query_pdb_number
+					self.subject_farthest_n_b_match = nn.subject_pdb_number
+					if not any([self.query_nearest_n_b_match, self.subject_nearest_n_b_match]):
+						self.query_nearest_n_b_match = nn.query_pdb_number
+						self.subject_nearest_n_b_match = nn.subject_pdb_number
 			else:
 				n_neighbor_list.remove(nn)
 
-		# Find matching residues on C-terminal side
+		# Find matching residues on C-terminal side, going away from loop
 		for cn in c_neighbor_list:
 			if cn.residues_align:
+				self.query_farthest_c_match = cn.query_pdb_number
+				self.subject_farthest_c_match = cn.subject_pdb_number
 				if not self.subject_nearest_c_match:
 					self.query_nearest_c_match = cn.query_pdb_number
 					self.subject_nearest_c_match = cn.subject_pdb_number
 				if cn.subject_sec_struct == 'E':
-					self.query_nearest_c_b_match = cn.query_pdb_number
-					self.subject_nearest_c_b_match = cn.subject_pdb_number
-					break
+					self.query_farthest_c_b_match = cn.query_pdb_number
+					self.subject_farthest_c_b_match = cn.subject_pdb_number
+					if not any([self.query_nearest_c_b_match, self.subject_nearest_c_b_match]):
+						self.query_nearest_c_b_match = cn.query_pdb_number
+						self.subject_nearest_c_b_match = cn.subject_pdb_number
 			else:
 				c_neighbor_list.remove(cn)
 
@@ -766,9 +845,43 @@ class matched_loop():
 
 		return
 
+	def check_overlaps(self):
+		""" 
+		Determines range of overlapping matched residues from the nearest 
+		matched residue flanking the loop to the farthest, on both N-terminal 
+		and C-terminal sides of the loop. 
+		"""
+		# Check N-term side for identified matching beta residues, taking that 
+		# difference if available, difference of aligned loop residues otherwise
+		if self.subject_nearest_n_b_match:
+			self.n_overlap_is_b = True
+			self.n_overlap_size = 1 + self.subject_farthest_n_b_match - \
+										self.subject_nearest_n_b_match 
+		else:
+			self.n_overlap_is_b = False
+			# Only assign overlap if aligned residues are found
+			if self.subject_nearest_n_match:
+				self.n_overlap_size = 1 + self.subject_farthest_n_match - \
+										self.subject_nearest_n_match
+
+		# Check C-term side for identified matching beta residues, taking that 
+		# difference if available, difference of aligned loop residues otherwise
+		if self.subject_nearest_c_b_match:
+			self.c_overlap_is_b = True
+			self.c_overlap_size = 1 + self.subject_farthest_c_b_match - \
+										self.subject_nearest_c_b_match 
+		else:
+			self.c_overlap_is_b = False
+			# Only assign overlap if aligned residues are found
+			if self.subject_nearest_c_match:
+				self.c_overlap_size = 1 + self.subject_farthest_c_match - \
+										self.subject_nearest_c_match
+
 	def simple_pick_splice(self):
 		"""
 		"""
+		# Setting loop boundaries at closest matching residues, prioritizing 
+		# b-sheet residues over unstructured ones
 		if self.query_nearest_n_b_match:
 			self.query_N_splice_res = self.query_nearest_n_b_match
 			self.subject_N_splice_res = self.subject_nearest_n_b_match
@@ -782,6 +895,7 @@ class matched_loop():
 			self.query_C_splice_res = self.query_nearest_c_match
 			self.subject_C_splice_res = self.subject_nearest_c_match
 
+		# Determining length of query loop from identified boundaries
 		if all([self.query_N_splice_res, self.query_C_splice_res]):
 			self.query_loop_size = self.query_C_splice_res - self.query_N_splice_res
 		elif self.query_N_splice_res:
@@ -791,7 +905,7 @@ class matched_loop():
 		else:
 			self.query_loop_size = self.query_c_boundary - self.query_n_boundary
 
-
+		# Determining length of subject loop from identified boundaries
 		if all([self.subject_N_splice_res, self.subject_C_splice_res]):
 			self.subject_loop_size = self.subject_C_splice_res - self.subject_N_splice_res
 		elif self.subject_N_splice_res:
@@ -803,11 +917,41 @@ class matched_loop():
 
 		return
 
+	def check_loop_rmsd(self, query_pose, subject_pose, loop_res):
+		""" 
+		If the subject and query loops are the same size, take CA RMSD 
+		"""
+		if self.query_loop_size == self.subject_loop_size:
+			self.subject_loop_matches_query_length = True
+			# Get pose-numbered residues for loop termini
+			for lr in loop_res:
+				if self.query_N_splice_res == lr.query_pdb_number:
+					qn = lr.query_pose_number
+					sn = lr.subject_pose_number
+				if self.query_C_splice_res == lr.query_pdb_number:
+					qc = lr.query_pose_number
+					sc = lr.subject_pose_number
+
+			# Make residue selectors for loops
+			stemp = '{}-{}'
+			query_selector = ResidueIndexSelector(stemp.format(qn, qc))
+			subject_selector = ResidueIndexSelector(stemp.format(sn, sc))
+
+			# Calculate RMSD
+			self.rmsd = get_section_RMSD(query_pose, query_selector, 
+										subject_pose, subject_selector)
+		else:
+			self.subject_loop_matches_query_length = False
+
+		return
+
 	def evaluate_suitability(self):
 		proximity_check = bool(self.close_substrate_residues)
 		res_count_check = self.subject_loop_size <= 50
 		#res_count_check = self.residue_count <= 50
 		#size_check = self.feature_size <= 50
+
+		similarity_check = not (self.rmsd and self.rmsd < 0.2)
 
 		if self.loop_name == 'N':
 			n_match_check = True
@@ -822,12 +966,16 @@ class matched_loop():
 		# Updating attributes
 		self.is_near_target = proximity_check
 		self.is_not_domain = res_count_check
+		self.is_different_from_original = similarity_check
 		self.is_n_match = n_match_check
 		self.is_c_match = c_match_check
-		self.is_possible_target = all([proximity_check, res_count_check, n_match_check, c_match_check])
+		self.is_possible_target = all([proximity_check, res_count_check, 
+			similarity_check, n_match_check, c_match_check])
 		#self.is_possible_target = all([proximity_check, res_count_check, size_check, n_match_check, c_match_check])
 
 		return
+
+
 
 """
 pdb_list = glob('aligned_pdbs/*.pdb')

@@ -109,3 +109,64 @@ mv query.list htra1_match/
 mv htra1_query.list htra1_match/
 cd htra1_match/
 ~/DaliLite.v5/bin/dali.pl --query query.list --db htra1_query.list --dat1 ../DAT/ --dat2 ../DAT/ --outfmt 'summary,alignments,equivalences,transrot' --clean 2> err
+
+### Making second iteration for TEV
+from glob import glob
+with open('loop_swap_protocol/extra_dali_runs/through_50_1qtf.txt','r') as r:
+    bigblock = r.readlines()
+other_blocks=glob('loop_swap_protocol/extra_dali_runs/20190928_JHL_*.txt')
+neighbor_lines = []
+for i in other_blocks:
+    with open(i, 'r') as r:
+        bigblock += r.readlines()
+retain = 0
+for line in bigblock:
+    if line == '\n':
+        retain = 0
+    if retain:
+        neighbor_lines.append(line)
+    if line == '    No:  Chain   Z    rmsd lali nres  %id PDB  Description\n':
+        retain = 1
+neighbors = []
+for nl in neighbor_lines:
+    neighbor = nl.split()[1]
+    if neighbor not in neighbors:
+        neighbors.append(neighbor)
+ns = sorted(neighbors)
+repcount = 0
+for i in range(len(ns)):
+    if ns[i][:5] == ns[i-1][:5]:
+        repcount += 1
+len(ns)-repcount # 2372 - 538 = 2194
+nsclean=[i.replace('-','') + '\n' for i in ns]
+with open('loop_swap_protocol/extra_dali_runs/second_iteration_through_50_list.txt', 'w') as w:
+    w.writelines(nsclean)
+
+# Making aligned PDBs -- Didn't quite work
+template = '~/DaliLite.v5/bin/applymatrix.pl ../dali_data/pdb/{0}/pdb{1}.ent.gz < ../dali_data/tev_rd2/1lvmA.txt > ../dali_data/tev_rd2/{1}.pdb'
+tev_fldr = '../dali_data/tev_rd2/'
+with open(tev_fldr + '1lvmA.txt', 'r') as r:
+    tev_report = r.readlines()
+tev_sum_lines = tev_report[3:1611]
+non_redundant_matches = []
+select_tev_matches = []
+for tsl in tev_sum_lines:
+    n = tsl.split()[1]
+    if n[:5] not in non_redundant_matches:
+        non_redundant_matches.append(n[:5])
+        select_tev_matches.append(tsl)
+for stm in select_tev_matches:
+    pdbid = stm.split()[1][:4]
+    folder = pdbid[1:3]
+    chain = stm.split()[1][-1]
+    system(template.format(folder, pdbid))
+    out_pdb = '../dali_data/tev_rd2/{}.pdb'.format(pdbid)
+    with open(out_pdb, 'r') as r:
+        full_pdb_lines = r.readlines()
+    trimmed_pdb_lines = []
+    for line in full_pdb_lines:
+        line_list = line.split()
+        if line_list[0] == 'ATOM' and line_list[4] == chain:
+            trimmed_pdb_lines.append(line)
+    with open(out_pdb, 'w') as w:
+        w.writelines(trimmed_pdb_lines)
