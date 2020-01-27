@@ -41,11 +41,17 @@ def apply_constraints(pose):
 	cstm.set_cst_action(ADD_NEW)
 	cstm.apply(pose)
 
+	# Determine peptide residues to constrain, preserving
+	# H-bonding residues of original peptide, P3-P1
+	first_pep_cst_res = pose.pdb_info().pdb2pose('B', 4)
+	last_pep_cst_res  = pose.pdb_info().pdb2pose('B', 6)
+	cst_range = '{}-{}'.format(first_pep_cst_res, last_pep_cst_res)
+
 	# Coordinate constraints
 	cg = CoordinateConstraintGenerator()
 	ors = OrResidueSelector()
 	ors.add_residue_selector(ChainSelector('A')) # Constrain main backbone
-	ors.add_residue_selector(ResidueIndexSelector('215-217')) # Preserving original peptide
+	ors.add_residue_selector(ResidueIndexSelector(cst_range)) 
 	cg.set_residue_selector(ors)
 
 	ac = AddConstraints()
@@ -67,14 +73,6 @@ init(opts)
 sf = create_score_function('ref2015_cst')
 pose = pose_from_pdb(args.start_struct)
 
-# Setting FoldTree
-ft=FoldTree()
-ft.add_edge(1,211,-1)
-ft.add_edge(1,217,1)
-ft.add_edge(217,212,-1)
-ft.add_edge(217,223,-1)
-pose.fold_tree(ft)
-
 # Changing peptide sequence
 asyn_seq = args.sequence.upper()
 pose = dp.make_residue_changes(pose, sf, asyn_seq, 212, [61, 91, 169], None)
@@ -90,12 +88,11 @@ if args.extend:
 	decoy_name += '_' + args.extend
 
 # Fixing constraints text block, since enzdes constraints are not dynamic
-if asyn_seq[5] != 'T':
-	fix_pdb = decoy_name + '.pdb'
-	pose.dump_pdb(fix_pdb)
-	fix_file(fix_pdb)
-	pose = pose_from_pdb (fix_pdb)
-	remove(fix_pdb)
+fix_pdb = decoy_name + '.pdb'
+pose.dump_pdb(fix_pdb)
+fix_file(fix_pdb)
+pose = pose_from_pdb (fix_pdb)
+remove(fix_pdb)
 
 # Applying constraints to the pose	
 apply_constraints(pose)
