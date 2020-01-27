@@ -27,7 +27,6 @@ def parse_args():
 	parser.add_argument('-x', '--extend', 
 		help='Extend output name, ex: job from SLURM')
 	args = parser.parse_args()
-	assert len(args.sequence) == 12
 	return args
 
 def apply_constraints(pose):
