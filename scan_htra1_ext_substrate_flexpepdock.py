@@ -88,7 +88,7 @@ if args.extend:
 	decoy_name += '_' + args.extend
 
 # Fixing constraints text block, since enzdes constraints are not dynamic
-fix_pdb = decoy_name + '.pdb'
+fix_pdb = decoy_name + '_tmp.pdb'
 pose.dump_pdb(fix_pdb)
 fix_file(fix_pdb)
 pose = pose_from_pdb (fix_pdb)
