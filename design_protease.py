@@ -11,11 +11,12 @@ enzdes constraint comments at the beginning of the document, and that the
 protease is chain A and the substrate is chain B.
 
 Sample commands:
-python design_protease.py -s HCV.pdb -od test -name despep -seq DVDAR -site 198 
--ps "198-202" -cons ly104.cst -cr 72 96 154 -dprot 0 -dpep 1 -n 100 -mm 138 I 
+python design_protease.py -s protease_design/start_proteases/HCV.pdb 
+-od test -name despep -seq DVDAR -site 198 -ps "198-202" -cons 
+protease_design/ly104.cst -cr 72 96 154 -dprot 0 -dpep 1 -n 100 -mm 138 I 
 -mm 170 Q -mm 171 S -mm 173 I -mm 175 K -mm 183 R
 
-python protease_design/design_protease.py  -name htra1_protease_asyn92 
+python design_protease.py  -name htra1_protease_asyn92 
 -s fibrils_collaboration/htra1_protease_p6-2p.pdb -seq SIAAATGF 
 -od fibrils_collaboration/relax_protease_on_92 -site 212 -cr 61 91 169 
 -cons fibrils_collaboration/htra1_protease.cst -n 10 -dprot 0 -dpep 0
@@ -417,6 +418,7 @@ def coord_constrain_peptide(pose, selection=ChainSelector('B')):
 	ac.apply(pose)
 	return pose
 
+
 def apply_hbond_constraints(pose, first_strand, second_strand):
 	"""
 	Adds H-bond constraints to a pose, given lists of residues in two beta 
@@ -612,6 +614,7 @@ def main(args):
 		out_name = basename(args.start_struct)
 		# strip out .pdb or .pdb.gz extension
 		out_name = out_name.replace('.pdb', '').replace('.gz', '')
+	dec_name = join(dir_name, out_name)
 
 	# Writing inputs list file
 	if not args.test_mode:
@@ -641,7 +644,6 @@ def main(args):
 	tf = make_task_factory(residue_selectors)
 
 	# Running relax and design protocol
-	dec_name = join(dir_name, out_name)
 	if args.design_protease or args.design_peptide:
 		dec_name += '_designed'
 	else: 
