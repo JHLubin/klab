@@ -1,12 +1,26 @@
 from glob import glob
+from os.path import join
 from pyrosetta import *
 from pyrosetta.rosetta.core.simple_metrics.metrics import TotalEnergyMetric, InteractionEnergyMetric
 from pyrosetta.rosetta.core.simple_metrics.per_residue_metrics import PerResidueEnergyMetric
 from pyrosetta.rosetta.core.select.residue_selector import ChainSelector, ResidueIndexSelector
+
+def parse_args():
+	info = "Design a protease around a peptide sequence"
+	parser = argparse.ArgumentParser(description=info)
+	parser.add_argument("-d", "--directory", required=True,
+		help="Pick a folder to analyze")
+	parser.add_argument("-ref", "--reference", required=True,
+		help="Pick a PDB file to compare against")
+	args = parser.parse_args()
+	return args
+
+args = parse_args()
+
 init()
-pdbs = glob('*.pdb')
-pose=pose_from_pdb('htra1_pdz_asyn_ext_1_19.pdb')
-sf=get_fa_scorefxn()
+pdbs = glob(join(args.directory, '*.pdb'))
+pose = pose_from_pdb(args.reference)
+sf = get_fa_scorefxn()
 prem = PerResidueEnergyMetric()
 prem.set_scorefunction(sf)
 tem = TotalEnergyMetric()
