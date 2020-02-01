@@ -99,6 +99,11 @@ Todo:
 		CCDEndsGraft
 		Design
 
+		Make sure CCDendsgraft 
+		Dump ensemble of perturbed loop positionings
+		No rigid body perturbation mover
+			Nonrandom
+
 	? Ambiguous constraints + stub library (inverse rotamers) + hot spots/hydrophobics (Sarel's influenza paper) --> automated, PlaceOnStub mover? Placed simultaneously
 	Multi-loop driven by loop interactions
 
@@ -109,6 +114,16 @@ mv query.list htra1_match/
 mv htra1_query.list htra1_match/
 cd htra1_match/
 ~/DaliLite.v5/bin/dali.pl --query query.list --db htra1_query.list --dat1 ../DAT/ --dat2 ../DAT/ --outfmt 'summary,alignments,equivalences,transrot' --clean 2> err
+
+# Advice for superposition
+You would need to code it in PyRosettta though.  The public function is this:
+create_atom_id_map  - which uses the set residue selectors to create the atom id map. Use that map for superposition.
+But all that is accessible in PyRosetta
+	per_residue_metrics::PerResidueRMSDMetric core_metric = per_residue_metrics::PerResidueRMSDMetric();
+	core_metric.set_residue_selector_reference( residue_selector_ref_);
+	core_metric.set_residue_selector( residue_selector_);
+	std::map< id::AtomID, id::AtomID > atom_map = core_metric.create_atom_id_map( pose );
+	core::scoring::superimpose_pose(local_pose, *ref_pose_, atom_map);
 
 ### Making second iteration for TEV
 from glob import glob
@@ -142,7 +157,7 @@ nsclean=[i.replace('-','') + '\n' for i in ns]
 with open('loop_swap_protocol/extra_dali_runs/second_iteration_through_50_list.txt', 'w') as w:
     w.writelines(nsclean)
 
-# Making aligned PDBs -- Didn't quite work
+# Making aligned PDBs -- Didn't quite work, need to split out lines
 template = '~/DaliLite.v5/bin/applymatrix.pl ../dali_data/pdb/{0}/pdb{1}.ent.gz < ../dali_data/tev_rd2/1lvmA.txt > ../dali_data/tev_rd2/{1}.pdb'
 tev_fldr = '../dali_data/tev_rd2/'
 with open(tev_fldr + '1lvmA.txt', 'r') as r:
@@ -155,6 +170,7 @@ for tsl in tev_sum_lines:
     if n[:5] not in non_redundant_matches:
         non_redundant_matches.append(n[:5])
         select_tev_matches.append(tsl)
+len(select_tev_matches) #  1316
 for stm in select_tev_matches:
     pdbid = stm.split()[1][:4]
     folder = pdbid[1:3]
@@ -170,3 +186,9 @@ for stm in select_tev_matches:
             trimmed_pdb_lines.append(line)
     with open(out_pdb, 'w') as w:
         w.writelines(trimmed_pdb_lines)
+
+With 20191216 refactor, still need to debug a few analysis failures
+Also, may want to reconsider gapped loops (where some residues are not resolved)
+	Is rejecting for ANY unresolved residues sufficient for rejection?
+N-overlap and C overlap may be switched
+Got a bug that's messing up PDB/pose numbering on 1A0J
