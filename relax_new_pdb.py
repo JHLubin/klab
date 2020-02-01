@@ -3,6 +3,7 @@ from pyrosetta import *
 from pyrosetta.rosetta.core.pack.task.operation import \
 	ExtraRotamers, IncludeCurrent, RestrictToRepacking
 from pyrosetta.rosetta.core.scoring import ScoreType as st
+from pyrosetta.rosetta.core.simple_metrics.metrics import RMSDMetric
 from pyrosetta.rosetta.protocols.constraint_generator import \
 	AddConstraints, CoordinateConstraintGenerator
 from pyrosetta.rosetta.protocols.enzdes import ADD_NEW, AddOrRemoveMatchCsts
@@ -35,7 +36,8 @@ def parse_args():
 	parser.add_argument('-cat', "--cat_res", type=int, default=None, nargs='+',
 		help="List residues that should be immobile, separated by spaces")
 	parser.add_argument('-cst', "--constraints", default=None,
-		help="If constraints are to be applied, specify the file")
+		help="If EnzDes constraints are to be applied in addition to the \
+		default coordinate constraints, specify the file")
 	parser.add_argument('-lig', "--ligand", default=None,
 		help="If there is a ligand, specify the params file")
 	parser.add_argument('-ccw', "--coord_wt", type=float, default=None,
@@ -96,17 +98,23 @@ def main(args):
 
 	out_name = join(dir_name, file_name)
 
-	# Loading PDB file, applying constraints, relaxing
+	# Loading PDB file, applying constraints
 	pose = pose_from_pdb(args.pdb_file)
+	ac.apply(pose)
+	if args.constraints:
+		enz_cst.apply(pose)
 
+	# RMSD metric
+	rmsdm = RMSDMetric()
+	rmsdm.set_comparison_pose(pose)
+
+	# Running relax set
 	jd = PyJobDistributor(out_name, args.n_decoys, sf)
 	while not jd.job_complete:
 		pp = Pose()
 		pp.assign(pose)
-		ac.apply(pp)
-		if args.constraints:
-			enz_cst.apply(pp)
 		fr.apply(pp)
+		rmsdm.apply(pp)
 		jd.output_decoy(pp)
 
 
