@@ -2483,7 +2483,7 @@ def parse_args():
         help="To what pickle file should the database write? Strongly recommended to use this feature.")
     parser.add_argument("-dd", "--data_dump", 
         help="To what text file should the database generation output be written?")
-    parser.add_argument("-f", "--parallel_fraction", nargs=2, 
+    parser.add_argument("-f", "--parallel_fraction", nargs=2, type=int,
         help="For parallelization, put in two values--the first is this job's place in the group, \
         the second is the total number of processors. So 2 5 would take the second 20pct of the total.")
     
@@ -2511,6 +2511,7 @@ def main(args):
                    'C':  range(187, 197)} 
     
     pdb_list = collect_list_of_homologs(args.dali_hits)
+    print(pdb_list)
     
     if args.parallel_fraction:
         fraction_len = round(len(pdb_list)/args.parallel_fraction[1])
@@ -2518,14 +2519,14 @@ def main(args):
         fraction_end = fraction_len * (args.parallel_fraction[0] + 1)
         pdb_list = pdb_list[fraction_begin: fraction_end]
 
-    print(pdb_list)
-    exit()
-    
     db, fail_list = collect_loop_library(args.query_name, args.query_pdb, pdb_list,
                          args.dali_hits, args.dali_alignments, 
                          hcv_cat_res, hcv_map,
-                         args.pdb_dir, subjects_format=0, 
+                         args.subject_pdb_dir, subjects_format=0, 
                          pickle_file=args.pickle_file)
+    print(fail_list)
+
+
     
 
 if __name__ == '__main__':
