@@ -2155,7 +2155,7 @@ def collect_loop_library(query_name, query_pdb, pdb_list,
     a list of any PDBs that failed to load or add properly to the library.
     """
     # Open query pose
-    pose = pose_from_pdb(query_pdb)
+    query_pose = pose_from_pdb(query_pdb)
     
     # Opening files
     if pickle_file:
@@ -2421,7 +2421,7 @@ def harsh_collect_loop_library(query_name, query_pdb, pdb_list,
                          pdb_dir, subjects_format=0, 
                          pickle_file=None, dump_file=None):
     # Open query pose
-    pose = pose_from_pdb(query_pdb)
+    query_pose = pose_from_pdb(query_pdb)
     
     # Opening files
     if pickle_file:
@@ -2491,6 +2491,7 @@ def parse_args():
 
 
 def main(args):
+    print(args)
     init('-mute all -ignore_zero_occupancy false')
 
     # Global data
@@ -2511,13 +2512,14 @@ def main(args):
                    'C':  range(187, 197)} 
     
     pdb_list = collect_list_of_homologs(args.dali_hits)
-    print(pdb_list)
+    print(len(pdb_list))
     
     if args.parallel_fraction:
         fraction_len = round(len(pdb_list)/args.parallel_fraction[1])
         fraction_begin = fraction_len * args.parallel_fraction[0]
         fraction_end = fraction_len * (args.parallel_fraction[0] + 1)
         pdb_list = pdb_list[fraction_begin: fraction_end]
+    print(len(pdb_list))
 
     db, fail_list = collect_loop_library(args.query_name, args.query_pdb, pdb_list,
                          args.dali_hits, args.dali_alignments, 
