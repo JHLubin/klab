@@ -2474,7 +2474,8 @@ def parse_args():
     parser.add_argument("-pdb_dir", "--subject_pdb_dir", default='/mnt/c/Users/jhlub/Documents/dali_data/pdb', 
         type=str, help="Directory location for subject PDB files")
     parser.add_argument("-spdb", "--subject_pdbs", default=None, 
-        help="Input subject PDBs. By default, generates a list from the Dali hits file")
+        help="Input subject PDBs. By default, generates a list from the Dali \
+        hits file. If a text file is given where each line is a PDB, reads that.")
     parser.add_argument("-dh", "--dali_hits", default='hcv/hcv_matches.txt', 
         type=str, help="Dali homolog list")
     parser.add_argument("-da", "--dali_alignments", default='hcv/hcv_matches.txt', 
@@ -2511,13 +2512,22 @@ def main(args):
                     12:  range(176, 178),
                    'C':  range(187, 197)} 
     
-    pdb_list = collect_list_of_homologs(args.dali_hits)
-    print(len(pdb_list))
+    if args.subject_pdbs:
+        with open(args.subject_pdbs, 'r') as r:
+            subj_pdbs = r.readlines()
+            pdb_list = [p.strip() for p in subj_pdbs]
+    else:
+        pdb_list = collect_list_of_homologs(args.dali_hits)
+        print(len(pdb_list))
+
     
     if args.parallel_fraction:
         fraction_len = round(len(pdb_list)/args.parallel_fraction[1])
-        fraction_begin = fraction_len * args.parallel_fraction[0]
-        fraction_end = fraction_len * (args.parallel_fraction[0] + 1)
+        fraction_begin = fraction_len * (args.parallel_fraction[0] - 1)
+        if args.parallel_fraction[0] == args.parallel_fraction[1]:
+            fraction_end = len(pdb_list) + 1
+        else:
+            fraction_end = fraction_len * (args.parallel_fraction[0])
         pdb_list = pdb_list[fraction_begin: fraction_end]
     print(len(pdb_list))
 
