@@ -1,0 +1,11 @@
+HEADER: 1LVM
+Query Name:                                                                                      TEV
+Subject Name:                                                                                   1LVM
+
+Z score:                                                                                         0.9
+RMSD:                                                                                            214
+LALI:                                                                                            229
+NRES:                                                                                            100
+pID:                                                                                       CATALYTIC
+Description:                                                         DOMAIN OF THE NUCLEAR INCLUSION
+

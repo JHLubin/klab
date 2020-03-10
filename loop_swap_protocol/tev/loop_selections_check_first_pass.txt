@@ -1,0 +1,76 @@
+96 homologs, 12 sites
+
+287 loops were identified as possible targets
+
+Distance excluded 603 loops
+May want to switch distance selection to intergroupinterface selector. Distance okay for now.
+3W94 8 Dist 8.407 with E pointed at substrate Cterm
+
+Discontinuous excluded 285 loops
+Discontinuity check is too aggressive, excluding PDBs over just misnumbered residues
+Change to chain breaks
+Want to exclude loops like 1FI8 1, but not 4CRE 1
+
+B factor excluded 204 loops
+May want to bump up B factor threshold to 60 (currently at 50). Would bring back 68 loops out of 204
+
+RMSD excluded 23 loops
+6BJR 1 RMSD 0.362 Seems like loop should actually be included, but spliced farther back
+1A5I 2 RMSD 0.000 because only two residues. Include splice residues in RMSD calculation.
+1SPJ 2 RMSD 0.259 Seems like should be included. Maybe punishing small loops too much
+2AS9 8 RMSD 0.459 Might also need to be spliced farther back
+
+Size excluded 16 loops
+Size exclusion seemed good on negative side
+
+16 loops lacked matched ends
+
+May want to force sliding windows for alignment to always include at least two residues, or switch to BB RMSD instead of CA RMSD
+5JB8 1 has cut that only makes sense by CA cutting, doesn't actually work physically
+
+
+Changes:
+Made discontinuity check only work on chain breaks, ignores PDB numbering
+RMSD calculation made to include the splice residues, not just the loop residues
+Altered splice site selection to pick two-residue frames or larger
+
+Going to two-residue frames made 6BJR 1 worse. No change in 2AS9 8. 5JB8 1 is maybe a little better, but not good enough.
+RMSD change seems to solve the problem.
+Chain breaks seem to be evaluating better 
+
+Switching back to single-residue frames with full BB RMSD seems to help a little, but there is still a splicing shortcoming
+Should target B sheets
+
+Possibly a lot better, but 5JB8 is still limited by cutting off at first mismatched residue. Remove that cutoff.
+
+Fails before changes: 15
+     aligned_pdbs/1AMH.pdb
+     aligned_pdbs/1B0F.pdb
+     aligned_pdbs/1EZX.pdb
+     aligned_pdbs/1FDP.pdb
+     aligned_pdbs/1PYT.pdb
+     aligned_pdbs/1SGF.pdb
+     aligned_pdbs/1SVP.pdb
+     aligned_pdbs/2WV9.pdb
+     aligned_pdbs/2Z9I.pdb
+     aligned_pdbs/3RP2.pdb
+     aligned_pdbs/3U1I.pdb
+     aligned_pdbs/4R8T.pdb
+     aligned_pdbs/5ILB.pdb
+     aligned_pdbs/5MZ4.pdb
+     aligned_pdbs/5t1v.pdb
+
+13
+     aligned_pdbs/1EZX.pdb
+     aligned_pdbs/1FDP.pdb
+     aligned_pdbs/1KY9.pdb
+     aligned_pdbs/1PYT.pdb
+     aligned_pdbs/1SGF.pdb
+     aligned_pdbs/1SVP.pdb
+     aligned_pdbs/2WV9.pdb
+     aligned_pdbs/3U1I.pdb
+     aligned_pdbs/4IC6.pdb
+     aligned_pdbs/4R8T.pdb
+     aligned_pdbs/5ILB.pdb
+     aligned_pdbs/5MZ4.pdb
+     aligned_pdbs/5t1v.pdb
